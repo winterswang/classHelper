@@ -1,6 +1,7 @@
 <?php
 class wexinEvent {
-
+private $dbname = '';//固定的DB name
+private $tableName = '';
 private $createTime;//创建时间
 private $fromUser;//来源openid
 private $toUser;//目标openid
@@ -16,7 +17,7 @@ private $event;//事件类型
     //insert the event to db 
     public function insertEvent(){
         //inset sql ;
-        $sql = 'insert into'. $dbname.'.'.$tablename.'' ;
+        $sql = 'insert into'. $this->$dbname.'.'.$this->$tablename.'' ;
         return $this->dbResult($sql);
     }
     public function getCreateTime(){
