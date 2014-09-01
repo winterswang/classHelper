@@ -1,10 +1,22 @@
 <?php
 /**
-  * wechat php test
-  */
+* @author winterswang
+* @version 0,1
+*
+*/
 
 //define your token
 define("TOKEN", "weixin");
+//XML信息存入到log里
+$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
+if (!empty($postStr)){
+    file_put_contents("/tmp/weixin_yingz.log", $postStr,FILE_APPEND);
+}else{
+    // 参考一下公司的代码
+    error_log('postStr is empty' .'');
+    return false;
+}
+
 $wechatObj = new wechatCallbackapiTest();
 $wechatObj->valid();
 $wechatObj->responseMsg();
@@ -15,18 +27,15 @@ class wechatCallbackapiTest
     {
         $echoStr = $_GET["echostr"];
         if(isset($echoStr)){
-	    echo $echoStr;exit;
-	}
+	       echo $echoStr;exit;
+	    }
     }
 
     public function responseMsg()
     {
-	        //echo "test\r\n";
 		//get post data, May be due to the different environments
 		$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
-      	        //extract post data
 		if (!empty($postStr)){
-	        file_put_contents("/tmp/weixin_yingz.log", $postStr,FILE_APPEND);
               	$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
                 $fromUsername = $postObj->FromUserName;
                 $toUsername = $postObj->ToUserName;
@@ -74,6 +83,15 @@ class wechatCallbackapiTest
 			return false;
 		}
 	}
+/**
+*
+*/
+    public function getEventType(){
+        $postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
+        $postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
+        $eventType = '';
+        return $eventType;
+    }
 }
 
 ?>
