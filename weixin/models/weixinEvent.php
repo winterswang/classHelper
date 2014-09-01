@@ -17,7 +17,7 @@ private $event;//事件类型
     //insert the event to db
     public function insertEvent(){
         //inset sql ;
-        $sql = 'insert into'.$this->tableName."(subscribe,openid,subscribe_time) values (1,'$this->toUser','$this->createTime');" ;
+        $sql = 'insert into '.$this->tableName."(subscribe,openid,subscribe_time) values (1,'$this->toUser','$this->createTime');" ;
         error_log($sql);
         return $this->dbResult($sql);
     }
@@ -37,6 +37,7 @@ private $event;//事件类型
         mysql_select_db("curriculum", $con);
         mysql_query($sql);
         mysql_close($con);
+	error_log('mysql insert successful');
         return true;
     }
 }
