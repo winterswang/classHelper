@@ -4,7 +4,7 @@
 * @version 0,1
 *
 */
-
+require_once('/models/weixinEvent.php');
 //define your token
 define("TOKEN", "weixin");
 //XML信息存入到log里
@@ -83,14 +83,19 @@ class wechatCallbackapiTest
 			return false;
 		}
 	}
-/**
-*
-*/
+    /**
+    * 获取事件消息的事件类型
+    */
     public function getEventType(){
+        error_log(__METHOD__.'');
         $postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
         $postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
-        $eventType = '';
+        $eventType = $postObj ->Event;
         return $eventType;
+    }
+
+    private function saveSubscribers(){
+
     }
 }
 
