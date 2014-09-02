@@ -9,7 +9,7 @@
 class WeixinController {
 
 	private $TOKEN = 'weixin';
-	private $postObj ;
+	private $postObj;
 
 	//构造方法
 	public function __construct(){
@@ -21,7 +21,7 @@ class WeixinController {
 		//验证通过再接入XML存储
 		//$this ->valid();
 		$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
-		//$postStr = '<xml><ToUserName><![CDATA[gh_6e55df1a2209]]></ToUserName><FromUserName><![CDATA[oNsk5uLjoXbpUf1Tqr8xs_trQ_9A]]></FromUserName><CreateTime>1409667870</CreateTime><MsgType><![CDATA[event]]></MsgType><Event><![CDATA[CLICK]]></Event><EventKey><![CDATA[5672]]></EventKey></xml>';
+	//	$postStr = '<xml><ToUserName><![CDATA[gh_6e55df1a2209]]></ToUserName><FromUserName><![CDATA[oNsk5uLjoXbpUf1Tqr8xs_trQ_9A]]></FromUserName><CreateTime>1409667870</CreateTime><MsgType><![CDATA[event]]></MsgType><Event><![CDATA[CLICK]]></Event><EventKey><![CDATA[5672]]></EventKey></xml>';
 		if (!empty($postStr)){
 		    file_put_contents("/tmp/weixin_yingz.log", $postStr,FILE_APPEND);
 		    $this ->postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
@@ -82,7 +82,8 @@ class WeixinController {
 
 	//存储事件
 	private function saveEvent(){
-		$we = new wexinEvent($this ->postObj ->createTime,$this ->postObj ->fromUser,$this ->postObj ->toUser,$this ->postObj ->Event);
+		var_dump($this ->postObj);
+		$we = new wexinEvent($this ->postObj ->CreateTime,$this ->postObj ->FromUserName,$this ->postObj ->ToUserName,$this ->postObj ->Event);
 		$we ->insertEvent();
 	}
 
