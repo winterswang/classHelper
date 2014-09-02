@@ -1,7 +1,7 @@
 <?php
 class wexinEvent {
 private $dbname = '';//固定的DB name
-private $tableName = 'userinfo';
+private $tableName = array('subscribe' =>'userinfo','unsubscribe' => 'userinfo',''=>'');
 private $createTime;//创建时间
 private $fromUser;//来源openid
 private $toUser;//目标openid
@@ -17,7 +17,8 @@ private $event;//事件类型
     //insert the event to db
     public function insertEvent(){
         //inset sql ;
-        $sql = 'insert into '.$this->tableName."(subscribe,openid,subscribe_time) values (1,'$this->toUser','$this->createTime');" ;
+        $type = strtolower($this ->event) == 'subscribe' ? 1 : 0;
+        $sql = 'insert into '.$this->tableName[strtolower($this ->event)]."(subscribe,openid,subscribe_time) values ('$type','$this->toUser','$this->createTime');" ;
         error_log($sql);
         return $this->dbResult($sql);
     }
@@ -37,7 +38,7 @@ private $event;//事件类型
         mysql_select_db("curriculum", $con);
         mysql_query($sql);
         mysql_close($con);
-	error_log('mysql insert successful');
+	    error_log('mysql insert successful');
         return true;
     }
 }
