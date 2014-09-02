@@ -1,7 +1,7 @@
 <?php
 class wexinEvent {
 private $dbname = '';//固定的DB name
-private $tableName = array('subscribe' =>'userinfo','unsubscribe' => 'userinfo',''=>'');
+private $tableName = array('subscribe' =>'userinfo','unsubscribe' => 'userinfo','click' =>'userinfo');
 private $createTime;//创建时间
 private $fromUser;//来源openid
 private $toUser;//目标openid
@@ -21,6 +21,11 @@ private $event;//事件类型
         $sql = 'insert into '.$this->tableName[strtolower($this ->event)]."(subscribe,openid,subscribe_time) values ('$type','$this->toUser','$this->createTime');" ;
         error_log($sql);
         return $this->dbResult($sql);
+    }
+
+    //insert the menu event to db
+    public function insertMenuEvent(){
+        //
     }
     public function getCreateTime(){
         return $this->createTime;

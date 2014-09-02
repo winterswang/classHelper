@@ -9,54 +9,45 @@
 class WeixinController {
 
 	private $TOKEN = 'weixin';
+	private $postObj ;
 
-	//绑定验证
-    public function valid()
-    {
-    	if ($this ->checkSignature()) {
-	        $echoStr = $_GET["echostr"];
-	        if(isset($echoStr)){
-		       echo $echoStr;
-		       exit;
-		    }
-    	}
-    }
-    //签名验证
-	private function checkSignature()
-	{
-        $signature = $_GET["signature"];
-        $timestamp = $_GET["timestamp"];
-        $nonce = $_GET["nonce"];
-		$token = $this ->TOKEN;
-		$tmpArr = array($token, $timestamp, $nonce);
-		sort($tmpArr, SORT_STRING);
-		$tmpStr = implode( $tmpArr );
-		$tmpStr = sha1( $tmpStr );
+	//构造方法
+	public function __construct(){
+		$this ->init();
+	}
 
-		if( $tmpStr == $signature ){
-			return true;
+	//初始化方法
+	private function init(){
+		//验证通过再接入XML存储
+		//$this ->valid();
+		$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
+		//$postStr = '<xml><ToUserName><![CDATA[gh_6e55df1a2209]]></ToUserName><FromUserName><![CDATA[oNsk5uLjoXbpUf1Tqr8xs_trQ_9A]]></FromUserName><CreateTime>1409667870</CreateTime><MsgType><![CDATA[event]]></MsgType><Event><![CDATA[CLICK]]></Event><EventKey><![CDATA[5672]]></EventKey></xml>';
+		if (!empty($postStr)){
+		    file_put_contents("/tmp/weixin_yingz.log", $postStr,FILE_APPEND);
+		    $this ->postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
 		}else{
-			return false;
+		    error_log('postStr is empty',3,'/tmp/classHelper.log');
+		    return false;
 		}
 	}
 
 	//获取微信事件类型
-	private function getEventType(){
-		$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
-		$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
-		$eventType = $postObj ->Event;
+	public function getEventType(){
+
+		$eventType = $this ->postObj ->Event;
 		if (isset($eventType)) {
 			return $eventType;
 		}
 		return false;
 	}
 
-	//路由事件
-	private function route($eventType, $postStr){
+	//获取微信消息类型
+	public function getMsgType(){
 
-		if(!$eventType || !isset($postStr)){
-			return false;
-		}
+	}
+
+	//路由事件
+	public function eventRoute($eventType){
 
 		switch (strtoupper($eventType)) {
 			//关注
@@ -73,7 +64,10 @@ class WeixinController {
 				break;
 			//菜单点击
 			case 'CLICK':
-
+				error_log('ON CLICK',3,'/tmp/classHelper.log');
+				$this ->responseTextMsg('on click');
+				//存储事件
+				$this ->saveEvent();
 				break;
 			//菜单URL跳转
 			case 'VIEW':
@@ -87,14 +81,56 @@ class WeixinController {
 	}
 
 	//存储事件
-	private function saveEvent($postStr){
-		if(!isset($postStr)){
-			error_log('postObj is empty');
+	private function saveEvent(){
+		$we = new wexinEvent($this ->postObj ->createTime,$this ->postObj ->fromUser,$this ->postObj ->toUser,$this ->postObj ->Event);
+		$we ->insertEvent();
+	}
+
+	//回复消息
+	private function responseTextMsg($contentStr){
+
+        $fromUsername = $this ->postObj->FromUserName;
+        $toUsername = $this ->postObj->ToUserName;
+        $textTpl = "<xml>
+					<ToUserName><![CDATA[%s]]></ToUserName>
+					<FromUserName><![CDATA[%s]]></FromUserName>
+					<CreateTime>%s</CreateTime>
+					<MsgType><![CDATA[%s]]></MsgType>
+					<Content><![CDATA[%s]]></Content>
+					<FuncFlag>0</FuncFlag>
+					</xml>";
+        $resultStr = sprintf($textTpl, $fromUsername, $toUsername, time(), 'text', $contentStr);
+        echo $resultStr;
+
+	}
+	//绑定验证
+    private function valid(){
+    	if ($this ->checkSignature()) {
+	        $echoStr = $_GET["echostr"];
+	        if(isset($echoStr)){
+		       echo $echoStr;
+		       return false;
+		    }
+		    return true;
+    	}
+    	return false;
+    }
+    //签名验证
+	private function checkSignature(){
+        $signature = $_GET["signature"];
+        $timestamp = $_GET["timestamp"];
+        $nonce = $_GET["nonce"];
+		$token = $this ->TOKEN;
+		$tmpArr = array($token, $timestamp, $nonce);
+		sort($tmpArr, SORT_STRING);
+		$tmpStr = implode( $tmpArr );
+		$tmpStr = sha1( $tmpStr );
+
+		if( $tmpStr == $signature ){
+			return true;
+		}else{
 			return false;
 		}
-		$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
-		$we = new wexinEvent($postObj ->createTime,$postObj ->fromUser,$postObj ->toUser,$postObj ->Event);
-		$we ->insertEvent();
 	}
 }
 ?>
