@@ -86,14 +86,16 @@ class WeixinController {
 	}
 	//信息路由
 	public function msgRoute($msgType){
-		error_log('msgType is '.$msgType,3,'/tmp/classHelper.log');
 		switch (strtoupper($msgType)) {
 			
 			case 'TEXT':
+				$fun = $this ->postObj ->FromUserName;
+				$ct = $this ->postObj ->CreateTime;
+				$content = $this ->postObj ->Content;
+				$sql = 'insert into '.$msgType."(FromUserName,CreateTime,Content) values ('$fun','$ct','$content');" ;
 				$this ->responseTextMsg($this ->postObj ->Content);
-				$sql = "INSERT INTO text(FromUserName,CreateTime,Content) VALUES ('$this ->postObj ->FromUserName','$this ->postObj ->CreateTime','$this ->postObj ->Content');" ;
-			        error_log($sql,3,'/tmp/classHelper.log');
-		        	$this ->dbSql($sql);
+			    error_log($sql);
+        		$this ->dbSql($sql);
 				break;
 			
 			//扫描二维码
@@ -101,22 +103,22 @@ class WeixinController {
 				$this ->responseTextMsg('a');
 				break;
 			//地理位置
-			case 'voice':
+			case 'VOICE':
 
 				break;
 			//菜单点击
-			case 'video':
+			case 'VIDEO':
 				error_log('ON CLICK',3,'/tmp/classHelper.log');
 				$this ->responseTextMsg('on click');
 				//存储事件
 				$this ->saveEvent();
 				break;
 			//菜单URL跳转
-			case 'location':
+			case 'LOCATION':
 
 				break;
 			//取消关注
-			case 'link':
+			case 'LINK':
 
 				break;
 		}
