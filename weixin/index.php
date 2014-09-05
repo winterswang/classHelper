@@ -11,11 +11,15 @@ require_once(__ROOT__.'/weixin/controller/WeixinController.php');
 //最新方法操作
 $wc  = new WeixinController();
 $eventType = $wc ->getEventType();
-if(!$eventType){
-    error_log('get event type failed',3,'/tmp/classHelper.log');
+$msgType = $wc ->getMsgType();
+
+//error_log(' msgType: '.$msgType .'eventType : '.$eventType,3,'/tmp/classHelper.log');
+
+if(!$eventType && !$msgType){
+    error_log('get type failed',3,'/tmp/classHelper.log');
     return false;
 }
-
-$wc ->eventRoute($eventType);
+'event' == $msgType ? $wc->eventRoute($eventType) : $wc ->msgRoute($msgType);
+//$wc ->eventRoute($eventType);
 
 ?>
