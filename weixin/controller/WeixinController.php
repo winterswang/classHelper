@@ -9,8 +9,8 @@
 class WeixinController {
 
 	private $TOKEN = 'weixin';
-	private $postObj;
-
+	private $postObj ;
+	
 	//构造方法
 	public function __construct(){
 		$this ->init();
@@ -21,7 +21,7 @@ class WeixinController {
 		//验证通过再接入XML存储
 		//$this ->valid();
 		$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
-	//	$postStr = '<xml><ToUserName><![CDATA[gh_6e55df1a2209]]></ToUserName><FromUserName><![CDATA[oNsk5uLjoXbpUf1Tqr8xs_trQ_9A]]></FromUserName><CreateTime>1409667870</CreateTime><MsgType><![CDATA[event]]></MsgType><Event><![CDATA[CLICK]]></Event><EventKey><![CDATA[5672]]></EventKey></xml>';
+		//$postStr = '<xml><ToUserName><![CDATA[gh_6e55df1a2209]]></ToUserName><FromUserName><![CDATA[oNsk5uLjoXbpUf1Tqr8xs_trQ_9A]]></FromUserName><CreateTime>1409667870</CreateTime><MsgType><![CDATA[event]]></MsgType><Event><![CDATA[CLICK]]></Event><EventKey><![CDATA[5672]]></EventKey></xml>';
 		if (!empty($postStr)){
 		    file_put_contents("/tmp/weixin_yingz.log", $postStr,FILE_APPEND);
 		    $this ->postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
@@ -43,7 +43,12 @@ class WeixinController {
 
 	//获取微信消息类型
 	public function getMsgType(){
-
+		$msgType = $this ->postObj ->MsgType;
+		if (isset($msgType)) {
+			
+			return $msgType;
+		}
+		return false;
 	}
 
 	//路由事件
@@ -79,20 +84,55 @@ class WeixinController {
 				break;
 		}
 	}
+	//信息路由
+	public function msgRoute($msgType){
+		error_log('msgType is '.$msgType,3,'/tmp/classHelper.log');
+		switch (strtoupper($msgType)) {
+			
+			case 'TEXT':
+				$this ->responseTextMsg($this ->postObj ->Content);
+				$sql = "INSERT INTO text(FromUserName,CreateTime,Content) VALUES ('$this ->postObj ->FromUserName','$this ->postObj ->CreateTime','$this ->postObj ->Content');" ;
+			        error_log($sql,3,'/tmp/classHelper.log');
+		        	$this ->dbSql($sql);
+				break;
+			
+			//扫描二维码
+			case 'IMAGE':
+				$this ->responseTextMsg('a');
+				break;
+			//地理位置
+			case 'voice':
 
+				break;
+			//菜单点击
+			case 'video':
+				error_log('ON CLICK',3,'/tmp/classHelper.log');
+				$this ->responseTextMsg('on click');
+				//存储事件
+				$this ->saveEvent();
+				break;
+			//菜单URL跳转
+			case 'location':
+
+				break;
+			//取消关注
+			case 'link':
+
+				break;
+		}
+	}
 	//存储事件
 	private function saveEvent(){
-		var_dump($this ->postObj);
-		$we = new wexinEvent($this ->postObj ->CreateTime,$this ->postObj ->FromUserName,$this ->postObj ->ToUserName,$this ->postObj ->Event);
+		$we = new wexinEvent($this ->postObj ->createTime,$this ->postObj ->fromUser,$this ->postObj ->toUser,$this ->postObj ->Event);
 		$we ->insertEvent();
 	}
 
 	//回复消息
 	private function responseTextMsg($contentStr){
 
-        $fromUsername = $this ->postObj->FromUserName;
-        $toUsername = $this ->postObj->ToUserName;
-        $textTpl = "<xml>
+        	$fromUsername = $this ->postObj->FromUserName;
+        	$toUsername = $this ->postObj->ToUserName;
+        	$textTpl = "<xml>
 					<ToUserName><![CDATA[%s]]></ToUserName>
 					<FromUserName><![CDATA[%s]]></FromUserName>
 					<CreateTime>%s</CreateTime>
@@ -100,8 +140,8 @@ class WeixinController {
 					<Content><![CDATA[%s]]></Content>
 					<FuncFlag>0</FuncFlag>
 					</xml>";
-        $resultStr = sprintf($textTpl, $fromUsername, $toUsername, time(), 'text', $contentStr);
-        echo $resultStr;
+        	$resultStr = sprintf($textTpl, $fromUsername, $toUsername, time(), 'text', $contentStr);
+        	echo $resultStr;
 
 	}
 	//绑定验证
@@ -118,9 +158,9 @@ class WeixinController {
     }
     //签名验证
 	private function checkSignature(){
-        $signature = $_GET["signature"];
-        $timestamp = $_GET["timestamp"];
-        $nonce = $_GET["nonce"];
+        	$signature = $_GET["signature"];
+        	$timestamp = $_GET["timestamp"];
+        	$nonce = $_GET["nonce"];
 		$token = $this ->TOKEN;
 		$tmpArr = array($token, $timestamp, $nonce);
 		sort($tmpArr, SORT_STRING);
@@ -133,5 +173,18 @@ class WeixinController {
 			return false;
 		}
 	}
+
+	private function dbSql($sql){
+        	$con = mysql_connect("localhost","root","wanglong319");
+        	if(! $con){
+            		error_log('mysql connect failed');
+            		return false;
+        	}	
+        	mysql_select_db("curriculum", $con);
+        	mysql_query($sql);
+        	mysql_close($con);
+	    	error_log('mysql insert successful');
+        	return true;
+    	}	
 }
 ?>
