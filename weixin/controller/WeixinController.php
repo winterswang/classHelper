@@ -93,7 +93,7 @@ class WeixinController {
 	}
 	//信息路由
 	public function msgRoute($msgType){
-		
+
 		$msgParam;
 		switch (strtoupper($msgType)) {
 
@@ -126,6 +126,7 @@ class WeixinController {
 				break;
 		}
 		$this ->saveMsg($msgType, $msgParam);
+		$this ->responseTextMsg($msgType." have saved ^^");
 	}
 	//存储事件
 	private function saveEvent(){
