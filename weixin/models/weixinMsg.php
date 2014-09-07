@@ -11,14 +11,15 @@
         }
 
 
-        //insert the event to db
+        //insert the message to db
         public function insertMsg(){
+
             $sql;
             $param = $this ->param;
+
             switch ($this ->type) {
                 case 'text':
                     $sql = 'insert into '.$this ->type."(FromUserName, CreateTime, Content, MsgId) values ('$param[0]', '$param[1]', '$param[2]', '$param[3]');" ;
-            
                     break;
                 case 'image':
                     $sql = 'insert into '.$this ->type."(FromUserName, CreateTime, PicUrl, MediaId, MsgId) values ('$param[0]', '$param[1]', '$param[2]', '$param[3]', '$param[4]');" ;
@@ -35,12 +36,7 @@
                 case 'link':
                     $sql = 'insert into '.$this ->type."(FromUserName, CreateTime, Title, Description, Url, MsgId) values ('$param[0]', '$param[1]', '$param[2]', '$param[3]', '$param[4]', '$param[5]');" ;
                     break;
-
-                default:
-                    # code...
-                    break;
             }
-            
             error_log($sql);
             return $this->dbResult($sql);
         }
