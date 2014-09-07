@@ -44,8 +44,15 @@ class WeixinController {
 	//获取微信消息类型
 	public function getMsgType(){
 		$msgType = $this ->postObj ->MsgType;
+		$eventType;
 		if (isset($msgType)) {
-			
+
+			if ($msgType == "event") {
+				$eventType = $this ->postObj ->Event;
+				$this ->eventRoute($eventType);
+			}
+			else $this ->msgRoute($msgType);
+
 			return $msgType;
 		}
 		return false;
@@ -86,47 +93,49 @@ class WeixinController {
 	}
 	//信息路由
 	public function msgRoute($msgType){
+		
+		$msgParam;
 		switch (strtoupper($msgType)) {
-			
+
 			case 'TEXT':
-				$fun = $this ->postObj ->FromUserName;
-				$ct = $this ->postObj ->CreateTime;
-				$content = $this ->postObj ->Content;
-				$sql = 'insert into '.$msgType."(FromUserName,CreateTime,Content) values ('$fun','$ct','$content');" ;
-				$this ->responseTextMsg($this ->postObj ->Content);
-			    error_log($sql);
-        		$this ->dbSql($sql);
+				$msgParam = array($this ->postObj ->FromUserName, $this ->postObj ->CreateTime, $this ->postObj ->Content, $this ->postObj ->MsgId);
+				
 				break;
 			
 			//扫描二维码
 			case 'IMAGE':
-				$this ->responseTextMsg('a');
+				$msgParam = array($this ->postObj ->FromUserName, $this ->postObj ->CreateTime, $this ->postObj ->PicUrl, $this ->postObj ->MediaId, $this ->postObj ->MsgId);
+
 				break;
 			//地理位置
 			case 'VOICE':
-
+				$msgParam = array($this ->postObj ->FromUserName, $this ->postObj ->CreateTime, $this ->postObj ->MediaId, $this ->postObj ->Format, $this ->postObj ->MsgId);
+				
 				break;
 			//菜单点击
 			case 'VIDEO':
-				error_log('ON CLICK',3,'/tmp/classHelper.log');
-				$this ->responseTextMsg('on click');
-				//存储事件
-				$this ->saveEvent();
+				$msgParam = array($this ->postObj ->FromUserName, $this ->postObj ->CreateTime, $this ->postObj ->MediaId, $this ->postObj ->ThumbMediaId, $this ->postObj ->MsgId);
 				break;
 			//菜单URL跳转
 			case 'LOCATION':
-
+				$msgParam = array($this ->postObj ->FromUserName, $this ->postObj ->CreateTime, $this ->postObj ->Location_X, $this ->postObj ->Location_Y, $this ->postObj ->Scale, $this ->postObj ->Label, $this ->postObj ->MsgId);
 				break;
 			//取消关注
 			case 'LINK':
-
+				$msgParam = array($this ->postObj ->FromUserName, $this ->postObj ->CreateTime, $this ->postObj ->Title, $this ->postObj ->Description, $this ->postObj ->Url, $this ->postObj ->MsgId);
 				break;
 		}
+		$this ->saveMsg($msgType, $msgParam);
 	}
 	//存储事件
 	private function saveEvent(){
-		$we = new wexinEvent($this ->postObj ->createTime,$this ->postObj ->fromUser,$this ->postObj ->toUser,$this ->postObj ->Event);
-		$we ->insertEvent();
+		$event = new weixinEvent($this ->postObj ->createTime,$this ->postObj ->fromUser,$this ->postObj ->toUser,$this ->postObj ->Event);
+		$event ->insertEvent();
+	}
+
+	private function saveMsg($t, $p){
+		$msg = new weixinMsg($t, $p);
+		$msg ->insertMsg();
 	}
 
 	//回复消息

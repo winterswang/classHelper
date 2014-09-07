@@ -1,5 +1,5 @@
 <?php
-class wexinEvent {
+class weixinEvent {
 private $dbname = '';//固定的DB name
 private $tableName = array('subscribe' =>'userinfo','unsubscribe' => 'userinfo','click' =>'userinfo');
 private $createTime;//创建时间

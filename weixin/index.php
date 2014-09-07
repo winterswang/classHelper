@@ -6,20 +6,19 @@
 */
 define('__ROOT__', dirname(dirname(__FILE__)));
 require_once(__ROOT__.'/weixin/models/weixinEvent.php');
+require_once(__ROOT__.'/weixin/models/weixinMsg.php');
 require_once(__ROOT__.'/weixin/controller/WeixinController.php');
 
 //最新方法操作
 $wc  = new WeixinController();
-$eventType = $wc ->getEventType();
 $msgType = $wc ->getMsgType();
 
 //error_log(' msgType: '.$msgType .'eventType : '.$eventType,3,'/tmp/classHelper.log');
 
-if(!$eventType && !$msgType){
+if(!$msgType){
     error_log('get type failed',3,'/tmp/classHelper.log');
     return false;
 }
-'event' == $msgType ? $wc->eventRoute($eventType) : $wc ->msgRoute($msgType);
 //$wc ->eventRoute($eventType);
 
 ?>

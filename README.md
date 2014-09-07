@@ -1,3 +1,7 @@
+2014/09/07
+将所有代码更新。
+并在models里创建weixinMsg.php，此处用来处理微信推送过来的各类消息。
+
 2014/09/05
 更新了controller中WeixinController类的代码，接受微信推过来的XML，解析出消息类型，并将消息的各个参数存储至DB中。
 接下来将把消息存储至DB中的过程封装成类weixinMsg。
