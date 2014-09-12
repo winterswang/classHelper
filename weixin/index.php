@@ -7,7 +7,9 @@
 define('__ROOT__', dirname(dirname(__FILE__)));
 require_once(__ROOT__.'/weixin/models/weixinEvent.php');
 require_once(__ROOT__.'/weixin/models/weixinMsg.php');
+require_once(__ROOT__.'/weixin/models/weixinUsr.php');
 require_once(__ROOT__.'/weixin/controller/WeixinController.php');
+require_once(__ROOT__.'/weixin/util/WxApiTools.php');
 
 //最新方法操作
 $wc  = new WeixinController();

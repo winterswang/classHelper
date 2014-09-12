@@ -1,3 +1,7 @@
+2014/09/10
+修改了WeixinController.php的格式。
+在目录下增加了util的文件夹，存放WxApiTools.php，此文件用来调用几乎所有的API。
+
 2014/09/07
 将所有代码更新（包括index）。
 并在models里创建weixinMsg.php，此处用来处理微信推送过来的各类消息。

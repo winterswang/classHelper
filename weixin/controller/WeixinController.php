@@ -46,7 +46,8 @@ class WeixinController {
 
 		$msgType = $this ->postObj ->MsgType;
 		$eventType;
-
+		
+		
 		if (isset($msgType)) {
 
 			if ($msgType == "event") {
@@ -66,7 +67,7 @@ class WeixinController {
 		switch (strtoupper($eventType)) {
 			//关注
 			case 'SUBSCRIBE':
-
+				$this ->responseTextMsg('Welcome to join us!');
 				break;
 			//扫描二维码
 			case 'SCAN':
@@ -74,7 +75,7 @@ class WeixinController {
 				break;
 			//地理位置
 			case 'LOCATION':
-
+				$this ->responseTextMsg('We will access your location data.');
 				break;
 			//菜单点击
 			case 'CLICK':
@@ -95,42 +96,83 @@ class WeixinController {
 	}
 	//信息路由
 	public function msgRoute($msgType){
-
+		$result;
 		$msgParam;
+		$access_token;
 		switch (strtoupper($msgType)) {
 
 			case 'TEXT':
-				$msgParam = array($this ->postObj ->FromUserName, $this ->postObj ->CreateTime, $this ->postObj ->Content, $this ->postObj ->MsgId);
-				
+				$msgParam = array($this ->postObj ->FromUserName, 
+						  $this ->postObj ->CreateTime, 
+						  $this ->postObj ->Content, 
+						  $this ->postObj ->MsgId
+						);
+				$aa = new WxApiTools();
+				$access_token = $aa ->getAccessToken();
+				$result = $aa ->getUserInfo($this ->postObj ->FromUserName, $access_token);
 				break;
 			
 			case 'IMAGE':
-				$msgParam = array($this ->postObj ->FromUserName, $this ->postObj ->CreateTime, $this ->postObj ->PicUrl, $this ->postObj ->MediaId, $this ->postObj ->MsgId);
+				$msgParam = array($this ->postObj ->FromUserName, 
+						  $this ->postObj ->CreateTime, 
+						  $this ->postObj ->PicUrl, 
+						  $this ->postObj ->MediaId, 
+						  $this ->postObj ->MsgId
+						);
 
 				break;
 			
 			case 'VOICE':
-				$msgParam = array($this ->postObj ->FromUserName, $this ->postObj ->CreateTime, $this ->postObj ->MediaId, $this ->postObj ->Format, $this ->postObj ->MsgId);
+				$msgParam = array($this ->postObj ->FromUserName, 
+						  $this ->postObj ->CreateTime, 
+						  $this ->postObj ->MediaId, 
+						  $this ->postObj ->Format, 
+						  $this ->postObj ->MsgId
+						);
 				
 				break;
 			
 			case 'VIDEO':
-				$msgParam = array($this ->postObj ->FromUserName, $this ->postObj ->CreateTime, $this ->postObj ->MediaId, $this ->postObj ->ThumbMediaId, $this ->postObj ->MsgId);
+				$msgParam = array($this ->postObj ->FromUserName, 
+						  $this ->postObj ->CreateTime, 
+						  $this ->postObj ->MediaId, 
+						  $this ->postObj ->ThumbMediaId, 
+						  $this ->postObj ->MsgId
+						);
 
 				break;
 			
 			case 'LOCATION':
-				$msgParam = array($this ->postObj ->FromUserName, $this ->postObj ->CreateTime, $this ->postObj ->Location_X, $this ->postObj ->Location_Y, $this ->postObj ->Scale, $this ->postObj ->Label, $this ->postObj ->MsgId);
+				$msgParam = array($this ->postObj ->FromUserName, 
+						  $this ->postObj ->CreateTime, 
+						  $this ->postObj ->Location_X, 
+						  $this ->postObj ->Location_Y, 
+						  $this ->postObj ->Scale, 
+						  $this ->postObj ->Label, 
+						  $this ->postObj ->MsgId
+						);
 
 				break;
 			
 			case 'LINK':
-				$msgParam = array($this ->postObj ->FromUserName, $this ->postObj ->CreateTime, $this ->postObj ->Title, $this ->postObj ->Description, $this ->postObj ->Url, $this ->postObj ->MsgId);
+				$msgParam = array($this ->postObj ->FromUserName, 
+						  $this ->postObj ->CreateTime, 
+						  $this ->postObj ->Title, 
+						  $this ->postObj ->Description, 
+						  $this ->postObj ->Url, 
+						  $this ->postObj ->MsgId
+						);
 				
 				break;
 		}
+		if (isset($result->errcode)){
+		
+			$this ->responseTextMsg($result ->errmsg);
+		}
+		else
+			$this ->responseTextMsg($result ->openid);
 		$this ->saveMsg($msgType, $msgParam);
-		$this ->responseTextMsg($msgType." have saved ^^");
+		/*$this ->responseTextMsg($msgType." have saved ^^");*/
 	}
 	//存储事件
 	private function saveEvent(){
@@ -141,6 +183,12 @@ class WeixinController {
 	private function saveMsg($t, $p){
 		$msg = new weixinMsg($t, $p);
 		$msg ->insertMsg();
+	}
+
+	private function saveUsrInfo($re){
+		$info = new weixinUsr($re);
+		$info ->insertInfo();
+		$this ->responseTextMsg('saved');
 	}
 
 	//回复消息
@@ -190,17 +238,5 @@ class WeixinController {
 		}
 	}
 
-	private function dbSql($sql){
-        	$con = mysql_connect("localhost","root","wanglong319");
-        	if(! $con){
-            		error_log('mysql connect failed');
-            		return false;
-        	}	
-        	mysql_select_db("curriculum", $con);
-        	mysql_query($sql);
-        	mysql_close($con);
-	    	error_log('mysql insert successful');
-        	return true;
-    	}	
 }
 ?>
