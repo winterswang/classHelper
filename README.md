@@ -1,3 +1,7 @@
+2014/09/16
+修改了WeixinController.php，于消息类型为text与image处分别增加了获取用户信息和生成带参数的二维码的相关代码，但是暂时未成功。
+另外已实现存储所有类型的消息的功能。
+
 2014/09/10
 修改了WeixinController.php的格式。
 在目录下增加了util的文件夹，存放WxApiTools.php，此文件用来调用几乎所有的API。
