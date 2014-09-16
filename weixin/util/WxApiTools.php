@@ -59,7 +59,7 @@ class WxApiTools {
 		$url = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=".urlencode($ticket);
 
 		$image = $this->get($url);		
-		$image_url = '/home/stephen/vsfoufang/kz_www/apps/weixin_dev/wwwroot/data/attachment/qr/'.$fileName.'.jpg';		
+		$image_url = '/home/yingz/php/attachment/qr/'.$fileName.'.jpg';		
 		file_put_contents($image_url, $image);
 		return $image_url;
 	}

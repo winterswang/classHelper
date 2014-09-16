@@ -98,7 +98,10 @@ class WeixinController {
 	public function msgRoute($msgType){
 		$result;
 		$msgParam;
-		$access_token;
+		$aa = new WxApiTools();
+		$access_token = $aa ->getAccessToken();
+		$ticket;
+		$qrImg;
 		switch (strtoupper($msgType)) {
 
 			case 'TEXT':
@@ -107,9 +110,14 @@ class WeixinController {
 						  $this ->postObj ->Content, 
 						  $this ->postObj ->MsgId
 						);
-				$aa = new WxApiTools();
-				$access_token = $aa ->getAccessToken();
-				$result = $aa ->getUserInfo($this ->postObj ->FromUserName, $access_token);
+				/*$result = $aa ->getUserInfo($this ->postObj ->FromUserName, $access_token);
+
+				if (isset($result->errcode))
+				
+					$this ->responseTextMsg($result ->errmsg);
+				else
+					$this ->responseTextMsg($result ->openid);
+	*/
 				break;
 			
 			case 'IMAGE':
@@ -119,8 +127,15 @@ class WeixinController {
 						  $this ->postObj ->MediaId, 
 						  $this ->postObj ->MsgId
 						);
-
-				break;
+	/*			$ticket = $aa ->getTicket($access_token, 2);
+				if (isset($ticket)) {
+					$qrImg = $aa ->getQRImage($ticket, 1);
+					$this ->responseTextMsg($ticket);
+					$msgParam[2] = $qrImg;	
+				}
+				else
+					$this ->responseTextMsg('Ticket is empty.');
+	*/			break;
 			
 			case 'VOICE':
 				$msgParam = array($this ->postObj ->FromUserName, 
@@ -165,14 +180,8 @@ class WeixinController {
 				
 				break;
 		}
-		if (isset($result->errcode)){
-		
-			$this ->responseTextMsg($result ->errmsg);
-		}
-		else
-			$this ->responseTextMsg($result ->openid);
 		$this ->saveMsg($msgType, $msgParam);
-		/*$this ->responseTextMsg($msgType." have saved ^^");*/
+		$this ->responseTextMsg($msgType." have saved ^^");
 	}
 	//存储事件
 	private function saveEvent(){
