@@ -1,6 +1,9 @@
 2014/09/16
+获取用户信息部分已成功。
+另外将LOCATION事件存储，于weixinEvent.php中添加了方法insertLocation用于存储LOCATION。
+
+2014/09/14
 修改了WeixinController.php，于消息类型为text与image处分别增加了获取用户信息和生成带参数的二维码的相关代码，但是暂时未成功。
-另外已实现存储所有类型的消息的功能。
 
 2014/09/10
 修改了WeixinController.php的格式。

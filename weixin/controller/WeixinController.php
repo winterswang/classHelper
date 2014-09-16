@@ -31,15 +31,6 @@ class WeixinController {
 		}
 	}
 
-	//获取微信事件类型
-	public function getEventType(){
-
-		$eventType = $this ->postObj ->Event;
-		if (isset($eventType)) {
-			return $eventType;
-		}
-		return false;
-	}
 
 	//获取微信消息类型
 	public function getMsgType(){
@@ -50,9 +41,11 @@ class WeixinController {
 		
 		if (isset($msgType)) {
 
-			if ($msgType == "event") {
+			//获取微信事件类型
+			if ($msgType == 'event') {
 				$eventType = $this ->postObj ->Event;
 				$this ->eventRoute($eventType);
+				return $eventType;
 			}
 			else $this ->msgRoute($msgType);
 
@@ -75,14 +68,16 @@ class WeixinController {
 				break;
 			//地理位置
 			case 'LOCATION':
+				//$this ->responseTextMsg('We will access your location data.');
+				$this ->saveEvent();
 				$this ->responseTextMsg('We will access your location data.');
 				break;
 			//菜单点击
 			case 'CLICK':
 				error_log('ON CLICK',3,'/tmp/classHelper.log');
-				$this ->responseTextMsg('on click');
 				//存储事件
 				$this ->saveEvent();
+				$this ->responseTextMsg('on click');
 				break;
 			//菜单URL跳转
 			case 'VIEW':
@@ -99,7 +94,7 @@ class WeixinController {
 		$result;
 		$msgParam;
 		$aa = new WxApiTools();
-		$access_token = $aa ->getAccessToken();
+		$access_token = $aa ->getAccessToken('wxbc46f36b6bd23611','96bdbea6d82db5c3a2349dac7e46bc72');
 		$ticket;
 		$qrImg;
 		switch (strtoupper($msgType)) {
@@ -110,14 +105,13 @@ class WeixinController {
 						  $this ->postObj ->Content, 
 						  $this ->postObj ->MsgId
 						);
-				/*$result = $aa ->getUserInfo($this ->postObj ->FromUserName, $access_token);
+				$result = $aa ->getUserInfo($this ->postObj ->FromUserName, $access_token);
 
 				if (isset($result->errcode))
 				
 					$this ->responseTextMsg($result ->errmsg);
 				else
-					$this ->responseTextMsg($result ->openid);
-	*/
+					$this ->saveUsrInfo($result);	
 				break;
 			
 			case 'IMAGE':
@@ -127,15 +121,15 @@ class WeixinController {
 						  $this ->postObj ->MediaId, 
 						  $this ->postObj ->MsgId
 						);
-	/*			$ticket = $aa ->getTicket($access_token, 2);
+				$ticket = $aa ->getTicket($access_token, 2);
 				if (isset($ticket)) {
-					$qrImg = $aa ->getQRImage($ticket, 1);
+					$qrImg = $aa ->getQRImage($ticket, '1');
 					$this ->responseTextMsg($ticket);
 					$msgParam[2] = $qrImg;	
 				}
 				else
 					$this ->responseTextMsg('Ticket is empty.');
-	*/			break;
+				break;
 			
 			case 'VOICE':
 				$msgParam = array($this ->postObj ->FromUserName, 
@@ -181,12 +175,15 @@ class WeixinController {
 				break;
 		}
 		$this ->saveMsg($msgType, $msgParam);
-		$this ->responseTextMsg($msgType." have saved ^^");
+		//$this ->responseTextMsg($msgType." have saved ^^");
 	}
 	//存储事件
 	private function saveEvent(){
-		$event = new weixinEvent($this ->postObj ->createTime,$this ->postObj ->fromUser,$this ->postObj ->toUser,$this ->postObj ->Event);
-		$event ->insertEvent();
+		$event = new weixinEvent($this ->postObj ->CreateTime,$this ->postObj ->FromUserName,$this ->postObj ->ToUserName, $this ->postObj ->Event);
+		if ($this ->postObj ->Event == 'CLICK')
+			$event ->insertEvent();
+		else 
+			$event ->insertLocation($this ->postObj ->Latitude, $this ->postObj ->Longitude);
 	}
 
 	private function saveMsg($t, $p){

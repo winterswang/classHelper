@@ -1,7 +1,7 @@
 <?php
 class weixinEvent {
 private $dbname = '';//固定的DB name
-private $tableName = array('subscribe' =>'userinfo','unsubscribe' => 'userinfo','click' =>'userinfo');
+private $tableName = array('subscribe' =>'userinfo','unsubscribe' => 'userinfo','click' =>'userinfo','location' => 'location');
 private $createTime;//创建时间
 private $fromUser;//来源openid
 private $toUser;//目标openid
@@ -23,6 +23,16 @@ private $event;//事件类型
         return $this->dbResult($sql);
     }
 
+    //insert the location to db
+    public function insertLocation($x, $y) {
+	//$sql = 'insert into '.$this->tableName[strtolower($this ->event)]."(FromUserName, CreateTime, Location_X, Location_Y) values ('$this ->fromUser', '$this ->createTime', '11.1', '40.333');" ;
+	$fu = $this ->fromUser;
+	$t = $this ->createTime;
+        $sql = 'insert into '.$this->tableName[strtolower($this->event)]."(FromUserName, CreateTime, Location_X, Location_Y) values ('$fu', '$t', '$x', '$y');" ;
+        error_log($sql);
+	
+        return $this->dbResult($sql);
+    }
     //insert the menu event to db
     public function insertMenuEvent(){
         //
