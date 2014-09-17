@@ -82,6 +82,7 @@ class WeixinController {
 
 	//存储事件
 	private function saveEvent(){
+		echo 'time : '.$this ->postObj->createTime;
 		$we = new wexinEvent($this ->postObj ->createTime,$this ->postObj ->fromUser,$this ->postObj ->toUser,$this ->postObj ->Event);
 		$we ->insertEvent();
 	}
