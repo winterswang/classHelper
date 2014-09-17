@@ -9,6 +9,7 @@ require_once(__ROOT__.'/models/weixinEvent.php');
 require_once(__ROOT__.'/controller/WeixinController.php');
 
 //testWeixinEvent();
+
 testWeixinController();
 /**
 * @method test for insert into db

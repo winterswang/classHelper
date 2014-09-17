@@ -52,7 +52,6 @@ class WeixinController {
 		switch (strtoupper($eventType)) {
 			//关注
 			case 'SUBSCRIBE':
-
 				break;
 			//扫描二维码
 			case 'SCAN':

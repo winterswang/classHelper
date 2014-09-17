@@ -1,4 +1,10 @@
 <?php
+
+/**
+*@author winterswang
+*思路还没有很清晰，这个类应该作为微信事件的基类，还分菜单事件，关注事件，扫描事件，再继续继承，DB操作需要封装，这只是demo
+*/
+
 class wexinEvent {
 private $dbname = '';//固定的DB name
 private $tableName = array('subscribe' =>'userinfo','unsubscribe' => 'userinfo','click' =>'userinfo');
