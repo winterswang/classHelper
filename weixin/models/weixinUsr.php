@@ -16,10 +16,10 @@ class weixinUsr {
             $info = $this ->usrInfo;
 	    $type = "userinfo";
 
-	    $sql ='insert into '.$type. "(subscribe, openid, nickname, sex, language, city) values ('".$info['subscribe']."', '".$info['openid']."', '".$info['nickname']."', '".$info['sex']."', '".$info['language']."', '".$info['city']."');" ;
-/*
+	    //$sql ='insert into '.$type. "(subscribe, openid, nickname, sex, language, city) values ('".$info['subscribe']."', '".$info['openid']."', '".$info['nickname']."', '".$info['sex']."', '".$info['language']."', '".$info['city']."');" ;
+
 	    $sql ='insert into '.$type. "(subscribe, openid, nickname, sex, language, city) values ('$info ->subscribe', '$info ->openid', '$info ->nickname', '$info ->sex', '$info ->language', '$info ->city');" ;
-*/
+
             error_log($sql);
             return $this->dbResult($sql);
         }

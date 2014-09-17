@@ -57,10 +57,20 @@ class WeixinController {
 	//路由事件
 	public function eventRoute($eventType){
 
+		$api = new WxApiTools();
+		$access_token = $api ->getAccessToken('wxbc46f36b6bd23611','96bdbea6d82db5c3a2349dac7e46bc72');
+		
 		switch (strtoupper($eventType)) {
 			//关注
 			case 'SUBSCRIBE':
 				$this ->responseTextMsg('Welcome to join us!');
+				//存储用户信息
+				$result = $api ->getUserInfo($this ->postObj ->FromUserName, $access_token);
+				if (isset($result->errcode))
+				
+					$this ->responseTextMsg($result ->errmsg);
+				else
+					$this ->saveUsrInfo($result);	
 				break;
 			//扫描二维码
 			case 'SCAN':
@@ -93,8 +103,8 @@ class WeixinController {
 	public function msgRoute($msgType){
 		$result;
 		$msgParam;
-		$aa = new WxApiTools();
-		$access_token = $aa ->getAccessToken('wxbc46f36b6bd23611','96bdbea6d82db5c3a2349dac7e46bc72');
+		$api = new WxApiTools();
+		$access_token = $api ->getAccessToken('wxbc46f36b6bd23611','96bdbea6d82db5c3a2349dac7e46bc72');
 		$ticket;
 		$qrImg;
 		switch (strtoupper($msgType)) {
@@ -105,13 +115,6 @@ class WeixinController {
 						  $this ->postObj ->Content, 
 						  $this ->postObj ->MsgId
 						);
-				$result = $aa ->getUserInfo($this ->postObj ->FromUserName, $access_token);
-
-				if (isset($result->errcode))
-				
-					$this ->responseTextMsg($result ->errmsg);
-				else
-					$this ->saveUsrInfo($result);	
 				break;
 			
 			case 'IMAGE':
@@ -121,9 +124,9 @@ class WeixinController {
 						  $this ->postObj ->MediaId, 
 						  $this ->postObj ->MsgId
 						);
-				$ticket = $aa ->getTicket($access_token, 2);
+				$ticket = $api ->getTicket($access_token, 2);
 				if (isset($ticket)) {
-					$qrImg = $aa ->getQRImage($ticket, '1');
+					$qrImg = $api ->getQRImage($ticket, '1');
 					$this ->responseTextMsg($ticket);
 					$msgParam[2] = $qrImg;	
 				}
@@ -175,7 +178,7 @@ class WeixinController {
 				break;
 		}
 		$this ->saveMsg($msgType, $msgParam);
-		//$this ->responseTextMsg($msgType." have saved ^^");
+		$this ->responseTextMsg($msgType." have saved ^^");
 	}
 	//存储事件
 	private function saveEvent(){
