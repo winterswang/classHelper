@@ -1,5 +1,5 @@
 <?php
-<<<<<<< HEAD
+
 
 /**
 *@author winterswang
@@ -7,9 +7,7 @@
 */
 
 class wexinEvent {
-=======
-class weixinEvent {
->>>>>>> 3bf8803c25c83811138e15158924eeee1ac14073
+
 private $dbname = '';//固定的DB name
 private $tableName = array('subscribe' =>'userinfo','unsubscribe' => 'userinfo','click' =>'userinfo','location' => 'location');
 private $createTime;//创建时间

@@ -63,8 +63,6 @@ class WeixinController {
 		switch (strtoupper($eventType)) {
 			//关注
 			case 'SUBSCRIBE':
-<<<<<<< HEAD
-=======
 				$this ->responseTextMsg('Welcome to join us!');
 				//存储用户信息
 				$result = $api ->getUserInfo($this ->postObj ->FromUserName, $access_token);
@@ -73,7 +71,6 @@ class WeixinController {
 					$this ->responseTextMsg($result ->errmsg);
 				else
 					$this ->saveUsrInfo($result);	
->>>>>>> 3bf8803c25c83811138e15158924eeee1ac14073
 				break;
 			//扫描二维码
 			case 'SCAN':
