@@ -1,3 +1,25 @@
+2014/09/16
+获取用户信息部分已成功。
+另外将LOCATION事件存储，于weixinEvent.php中添加了方法insertLocation用于存储LOCATION。
+
+2014/09/14
+修改了WeixinController.php，于消息类型为text与image处分别增加了获取用户信息和生成带参数的二维码的相关代码，但是暂时未成功。
+
+2014/09/10
+修改了WeixinController.php的格式。
+在目录下增加了util的文件夹，存放WxApiTools.php，此文件用来调用几乎所有的API。
+
+2014/09/07
+将所有代码更新（包括index）。
+并在models里创建weixinMsg.php，此处用来处理微信推送过来的各类消息。
+
+2014/09/05
+更新了controller中WeixinController类的代码，接受微信推过来的XML，解析出消息类型，并将消息的各个参数存储至DB中。
+接下来将把消息存储至DB中的过程封装成类weixinMsg。
+
+2014/09/05
+结合zy的代码，完成了事件和消息的双向监听，暂时微信可以自动回复消息，DB存储还有一些问题有待完善
+
 2014/09/02
 调通了整个流程，接受微信推过来的XML，解析出各种事件，完成路由，存储到DB，接下来就是继续抽象和封装，特别是DB和事件那部分。
 
