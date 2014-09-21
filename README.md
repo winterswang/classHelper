@@ -1,4 +1,9 @@
-2014/09/19
+2014/09/21
+成功验证了用于插入定位事件的子类weixinLocEvent。
+于表course中插入字段description，并插入相关信息，此字段内容包含课程的具体信息和用户可能输入的模糊查询。
+于发送图文消息的方法responseNews()中加入循环，使得该方法可输出多图文消息。
+
+2014/09/20
 通过模糊查询利用图文消息发送课程信息。
 于weixinMsg.php中添加了方法search()用于模糊查询。于WeixinController.php中添加了方法responseNews()用于发送图文消息。
 

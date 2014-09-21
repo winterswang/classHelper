@@ -34,7 +34,7 @@ private $param;
                 $sql = 'insert into '.$this ->type."(FromUserName, CreateTime, Location_X, Location_Y, Scale, Label, MsgId) values ('".$param['FromUserName']."', '".$param['CreateTime']."', '".$param['Location_X']."', '".$param['Location_Y']."', '".$param['Scale']."', '".$param['Label']."', '".$param['MsgId']."');" ;
                 break;
             case 'link':
-                $sql = 'insert into '.$this ->type."(FromUserName, CreateTime, Title, Description, Url, MsgId) values ('".$param[0]."', '".$param[1]."', '".$param[2]."', '".$param[3]."', '".$param[4]."', '".$param[5]."');" ;
+                $sql = 'insert into '.$this ->type."(FromUserName, CreateTime, Title, Description, Url, MsgId) values ('".$param['FromUserName']."', '".$param['CreateTime']."', '".$param['Title']."', '".$param['Description']."', '".$param['Url']."', '".$param['MsgId']."');" ;
                 break;
         }
         error_log($sql);
@@ -44,7 +44,12 @@ private $param;
     //search
     public function search() {
       $arr = $this ->param;
-      $sql="SELECT courseid, coursename, time, room, teacher, type, term FROM course WHERE courseid LIKE '%".$arr['Content']."%' or coursename LIKE '%".$arr['Content']."%' or room LIKE '%".$arr['Content']."%' or teacher LIKE '%".$arr['Content']."%'";
+      //$sql="SELECT courseid, coursename, time, room, teacher, type, term, description FROM course WHERE courseid LIKE '%".$arr['Content']."%' or coursename LIKE '%".$arr['Content']."%' or room LIKE '%".$arr['Content']."%' or teacher LIKE '%".$arr['Content']."%'or type LIKE '%".$arr['Content']."%' or description LIKE '%".$arr['Content']."%';" ;
+      
+      //description中包含了所有课程信息，包括模糊称呼
+      $sql="SELECT courseid, coursename, time, room, teacher, type, term, description FROM course WHERE description LIKE '%".$arr['Content']."%';" ;
+
+      error_log($sql);
       $arr = $this ->dbResult($sql);
       return $arr;
     }
@@ -55,16 +60,25 @@ private $param;
     private function dbResult($sql){
         $con = mysql_connect("localhost","root","wanglong319");
         $re;
+
         if(! $con){
             error_log('mysql connect failed');
             return false;
         }
         mysql_select_db("curriculum", $con);
+
         $re = mysql_query($sql);
-        $row=mysql_fetch_row($re);
+        $num = mysql_num_rows($re);
+        for ($i=0; $i < $num; $i++) { 
+            # code...
+            $row=mysql_fetch_row($re);
+            $arr[$i] = $row;
+        }
+        
+        $arr['num'] = $num;
         mysql_close($con);
         error_log('mysql insert successful');
-        return $row;
+        return $arr;
     }
 }
 ?>

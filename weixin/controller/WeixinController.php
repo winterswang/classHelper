@@ -178,18 +178,24 @@ class WeixinController {
 				
 				break;
 		}
-		//$this ->saveMsg($msgType, $msgParam);
+		$this ->saveMsg($msgType, $msgParam);
 		//$this ->responseTextMsg($msgType." have saved ^^");
 		$this ->responseNews($result);
+		//$this ->responseTextMsg($result);
+		
 	}
 	//存储事件
 	private function saveEvent(){
 
-		$event = new weixinEvent($this ->postObj ->CreateTime,$this ->postObj ->FromUserName,$this ->postObj ->ToUserName, $this ->postObj ->Event);
-		if ($this ->postObj ->Event == 'CLICK')
+		$event;
+		if ($this ->postObj ->Event == 'CLICK') {
+			$event = new weixinEvent($this ->postObj ->CreateTime,$this ->postObj ->FromUserName,$this ->postObj ->ToUserName, $this ->postObj ->Event);
 			$event ->insertEvent();
-		else 
-			$event ->insertLocation($this ->postObj ->Latitude, $this ->postObj ->Longitude);
+		}
+		else {
+			$event = new weixinLocEvent($this ->postObj ->CreateTime,$this ->postObj ->FromUserName,$this ->postObj ->ToUserName, $this ->postObj ->Event, $this ->postObj ->Latitude, $this ->postObj ->Longitude);
+			$event ->insertLocation();
+		}
 	}
 
 	private function saveMsg($t, $p){
@@ -222,29 +228,42 @@ class WeixinController {
 	}
 
 	private function responseNews($contentStr){
+			$num = $contentStr['num'];
 
         	$fromUsername = $this ->postObj->FromUserName;
         	$toUsername = $this ->postObj->ToUserName;
-        	$str = $contentStr[0]."\n".$contentStr[1]."\n".$contentStr[2]."\n".$contentStr[3]."\n".$contentStr[4]."\n".$contentStr[5];
+        	$str ;
+
+        	$title = 'course';
+			$purl = 'http://mmbiz.qpic.cn/mmbiz/Z9rgwVAyPI3DPUTgvJJOoYJsw519KIc05lYamyNpaxXDDuBcVPs9EA0MZqIbKJbFLrUlUNiaicjvjDZm0n6HpWXw/0';
+			$url = 'www.baidu.com';
+
         	$textTpl = "<xml>
 						<ToUserName><![CDATA[%s]]></ToUserName>
 						<FromUserName><![CDATA[%s]]></FromUserName>
 						<CreateTime>%s</CreateTime>
 						<MsgType><![CDATA[%s]]></MsgType>
-						<ArticleCount>1</ArticleCount>
+						<ArticleCount>$num</ArticleCount>
 						<Articles>
-						<item>
-						<Title><![CDATA[%s]]></Title> 
-						<Description><![CDATA[%s]]></Description>
-						<PicUrl><![CDATA[%s]]></PicUrl>
-						<Url><![CDATA[%s]]></Url>
+						";
+			for ($i=0; $i < $num; $i++) { 
+				# code...
+				$row = $contentStr[$i];
+				$str = $row[0]."\n".$row[1]."\n".$row[2]."\n".$row[3]."\n".$row[4]."\n".$row[5]."\n".$row[6];
+				$textTpl = $textTpl."<item>
+						<Title><![CDATA[$title]]></Title> 
+						<Description><![CDATA[$str]]></Description>
+						<PicUrl><![CDATA[$purl]]></PicUrl>
+						<Url><![CDATA[$url]]></Url>
 						</item>
-						</Articles>
+						";
+						
+			}
+			$textTpl = $textTpl."</Articles>
 						</xml> ";
-			$title = 'course';
-			$purl = 'http://mmbiz.qpic.cn/mmbiz/Z9rgwVAyPI1mtkdUQ5c4O7fmczpbUg9hTMy3w7hKpuZUHjLFOUhWicpJ15feyZy97NtCTqdXrv0Zx8vdIS13AVg/0';
-			$url = 'www.baidu.com';
-        	$resultStr = sprintf($textTpl, $fromUsername, $toUsername, time(), 'news', $title, $str, $purl, $url);
+			
+			
+        	$resultStr = sprintf($textTpl, $fromUsername, $toUsername, time(), 'news');
         	echo $resultStr;
 
 	}
