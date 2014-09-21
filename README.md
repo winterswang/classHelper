@@ -1,4 +1,4 @@
-2014/09/19
+tst2014/09/19
 通过模糊查询利用图文消息发送课程信息。
 于weixinMsg.php中添加了方法search()用于模糊查询。于WeixinController.php中添加了方法responseNews()用于发送图文消息。
 
