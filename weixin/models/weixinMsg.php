@@ -43,11 +43,11 @@ private $param;
 
     //search
     public function search() {
-      $arr = $this ->param;
+      $param = $this ->param;
       //$sql="SELECT courseid, coursename, time, room, teacher, type, term, description FROM course WHERE courseid LIKE '%".$arr['Content']."%' or coursename LIKE '%".$arr['Content']."%' or room LIKE '%".$arr['Content']."%' or teacher LIKE '%".$arr['Content']."%'or type LIKE '%".$arr['Content']."%' or description LIKE '%".$arr['Content']."%';" ;
       
       //description中包含了所有课程信息，包括模糊称呼
-      $sql="SELECT courseid, coursename, time, room, teacher, type, term, description FROM course WHERE description LIKE '%".$arr['Content']."%';" ;
+      $sql="SELECT courseid, coursename, time, room, teacher, type, term, description FROM course WHERE description LIKE '%".$param['Content']."%';" ;
 
       error_log($sql);
       $arr = $this ->dbResult($sql);
@@ -59,7 +59,7 @@ private $param;
     //执行db操作，返回结果
     private function dbResult($sql){
         $con = mysql_connect("localhost","root","wanglong319");
-        $re;
+        $num = 0;
 
         if(! $con){
             error_log('mysql connect failed');

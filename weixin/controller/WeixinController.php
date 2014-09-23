@@ -63,12 +63,12 @@ class WeixinController {
 		switch (strtoupper($eventType)) {
 			//关注
 			case 'SUBSCRIBE':
-
-				$this ->responseTextMsg('Welcome to join us!');
 				//存储用户信息
 				$result = $api ->getUserInfo($this ->postObj ->FromUserName, $access_token);
 				if (isset($result->errcode)) $this ->responseTextMsg($result ->errmsg);
 				else $this ->saveUsrInfo($result);	
+
+				$this ->responseTextMsg('Welcome to join us!');
 				break;
 			//扫描二维码
 			case 'SCAN':
@@ -76,7 +76,6 @@ class WeixinController {
 				break;
 			//地理位置
 			case 'LOCATION':
-				//$this ->responseTextMsg('We will access your location data.');
 				$this ->saveEvent();
 				$this ->responseTextMsg('We will access your location data.');
 				break;
@@ -103,9 +102,7 @@ class WeixinController {
 		$msgParam;
 		$api = new WxApiTools();
 		$access_token = $api ->getAccessToken('wxbc46f36b6bd23611','96bdbea6d82db5c3a2349dac7e46bc72');
-		/*$ticket;
-		$qrImg;*/
-		$msgOp;
+
 		switch (strtoupper($msgType)) {
 
 			case 'TEXT':
@@ -114,8 +111,7 @@ class WeixinController {
 						  			'Content' => $this ->postObj ->Content, 
 						  			'MsgId' => $this ->postObj ->MsgId
 								);
-				$msgOp = new weixinMsg($msgType, $msgParam);
-				$result = $msgOp ->search();
+				$this ->searchCourse($msgType, $msgParam);
 				break;
 			
 			case 'IMAGE':
@@ -125,14 +121,7 @@ class WeixinController {
 						  			'MediaId' => $this ->postObj ->MediaId, 
 						  			'MsgId' => $this ->postObj ->MsgId
 								);
-				/*$ticket = $api ->getTicket($access_token, 2);
-				if (isset($ticket)) {
-					$qrImg = $api ->getQRImage($ticket, '1');
-					$this ->responseTextMsg($ticket);
-					$msgParam[2] = $qrImg;	
-				}
-				else
-					$this ->responseTextMsg('Ticket is empty.');*/
+				
 				break;
 			
 			case 'VOICE':
@@ -179,8 +168,8 @@ class WeixinController {
 				break;
 		}
 		$this ->saveMsg($msgType, $msgParam);
-		//$this ->responseTextMsg($msgType." have saved ^^");
-		$this ->responseNews($result);
+		$this ->responseTextMsg($msgType." have saved ^^");
+		
 		//$this ->responseTextMsg($result);
 		
 	}
@@ -206,7 +195,15 @@ class WeixinController {
 	private function saveUsrInfo($re){
 		$info = new weixinUsr($re);
 		$info ->insertInfo();
-		$this ->responseTextMsg('saved');
+	}
+
+	private function searchCourse($msgType, $msgParam) {
+
+		$msgOp = new weixinMsg($msgType, $msgParam);
+		$result = $msgOp ->search();
+		if ($result['num'])
+			$this ->responseNews($result);
+		else $this ->responseTextMsg('查询无结果，请您确认是否输入正确。如果需要查询课程的话您最好输入与课程相关的信息，如课程名，课程序号，教师姓名，教室等等。');
 	}
 
 	//回复消息

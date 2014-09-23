@@ -20,11 +20,13 @@ class weixinLocEvent extends weixinEvent {
 	//insert the location to db
     public function insertLocation() {
 	//$sql = 'insert into '.$this->tableName[strtolower($this ->event)]."(FromUserName, CreateTime, Location_X, Location_Y) values ('$this ->fromUser', '$this ->createTime', '11.1', '40.333');" ;
-	$fu = $this ->fromUser;
-	$t = $this ->createTime;
-    $lat = $this ->latitude;
-    $long = $this ->longitude;
-        $sql = 'insert into '.$this ->tableName."(FromUserName, CreateTime, Location_X, Location_Y) values ('$fu', '$t', '$lat', '$long');" ;
+    	$fu = $this ->fromUser;
+    	$t = $this ->createTime;
+        $lat = $this ->latitude;
+        $long = $this ->longitude;
+        $label = 'Location Event';
+        
+        $sql = 'insert into '.$this ->tableName."(FromUserName, CreateTime, Location_X, Location_Y, Label) values ('$fu', '$t', '$lat', '$long', '$label');" ;
         error_log($sql);
 	
         return $this->dbResult($sql);
