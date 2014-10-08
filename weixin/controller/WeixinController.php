@@ -68,7 +68,7 @@ class WeixinController {
 				if (isset($result->errcode)) $this ->responseTextMsg($result ->errmsg);
 				else $this ->saveUsrInfo($result);	
 
-				$this ->responseTextMsg('Welcome to join us!');
+				$this ->responseTextMsg("Welcome to join us!您可\n1.通过搜索关键字（课程名称，教师姓名，教室号等）查找课程\n2.通过发送地理位置查找当日附近课程\n3.通过菜单操作查找课程");
 				break;
 			//扫描二维码
 			case 'SCAN':
@@ -77,7 +77,7 @@ class WeixinController {
 			//地理位置
 			case 'LOCATION':
 				$this ->saveEvent();
-				$this ->responseTextMsg('We will access your location data.');
+				$this ->responseTextMsg("We will access your location data.\n您可通过发送地理位置查找当日附近课程^^");
 				break;
 			//菜单点击
 			case 'CLICK':
@@ -121,7 +121,7 @@ class WeixinController {
 						  			'MediaId' => $this ->postObj ->MediaId, 
 						  			'MsgId' => $this ->postObj ->MsgId
 								);
-				
+				$this ->responseTextMsg($msgType." have saved ^^");
 				break;
 			
 			case 'VOICE':
@@ -131,7 +131,7 @@ class WeixinController {
 						  			'Format' => $this ->postObj ->Format, 
 						  			'MsgId' => $this ->postObj ->MsgId
 								);
-				
+				$this ->responseTextMsg($msgType." have saved ^^");
 				break;
 			
 			case 'VIDEO':
@@ -141,7 +141,7 @@ class WeixinController {
 						  			'ThumbMediaId' => $this ->postObj ->ThumbMediaId, 
 						  			'MsgId' => $this ->postObj ->MsgId
 								);
-
+				$this ->responseTextMsg($msgType." have saved ^^");
 				break;
 			
 			case 'LOCATION':
@@ -153,7 +153,7 @@ class WeixinController {
 						  			'Label' => $this ->postObj ->Label, 
 						  			'MsgId' => $this ->postObj ->MsgId
 								);
-
+				$this ->nearbyCourse($msgType, $msgParam);
 				break;
 			
 			case 'LINK':
@@ -164,12 +164,12 @@ class WeixinController {
 						  			'Url' => $this ->postObj ->Url, 
 						 			'MsgId' => $this ->postObj ->MsgId
 								);
-				
+				$this ->responseTextMsg($msgType." have saved ^^");
 				break;
 		}
-		$this ->saveMsg($msgType, $msgParam);
-		$this ->responseTextMsg($msgType." have saved ^^");
 		
+		
+		$this ->saveMsg($msgType, $msgParam);
 		//$this ->responseTextMsg($result);
 		
 	}
@@ -178,12 +178,16 @@ class WeixinController {
 
 		$event;
 		if ($this ->postObj ->Event == 'CLICK') {
-			$event = new weixinEvent($this ->postObj ->CreateTime,$this ->postObj ->FromUserName,$this ->postObj ->ToUserName, $this ->postObj ->Event);
+			$event = new weixinEvent($this ->postObj ->CreateTime, $this ->postObj ->FromUserName, $this ->postObj ->Event);
 			$event ->insertEvent();
 		}
 		else {
-			$event = new weixinLocEvent($this ->postObj ->CreateTime,$this ->postObj ->FromUserName,$this ->postObj ->ToUserName, $this ->postObj ->Event, $this ->postObj ->Latitude, $this ->postObj ->Longitude);
+			$event = new weixinLocEvent($this ->postObj ->CreateTime, $this ->postObj ->FromUserName, $this ->postObj ->Event, $this ->postObj ->Latitude, $this ->postObj ->Longitude);
 			$event ->insertLocation();
+			$result = $event ->nearby();
+			if ($result['num'])
+				$this ->responseNews($result);
+			else $this ->responseTextMsg('您附近今日无课程。');
 		}
 	}
 
@@ -201,9 +205,21 @@ class WeixinController {
 
 		$msgOp = new weixinMsg($msgType, $msgParam);
 		$result = $msgOp ->search();
-		if ($result['num'])
+		if ($result['num'] != 0 && $result['num'] != 36)
 			$this ->responseNews($result);
 		else $this ->responseTextMsg('查询无结果，请您确认是否输入正确。如果需要查询课程的话您最好输入与课程相关的信息，如课程名，课程序号，教师姓名，教室等等。');
+		//$this ->responseTextMsg($result['num']);
+		
+	}
+
+	private function nearbyCourse($msgType, $msgParam) {
+
+		$locOp = new weixinLocEvent($msgParam['CreateTime'], $msgParam['FromUserName'], $msgType, $msgParam['Location_X'], $msgParam['Location_Y']);
+
+		$result = $locOp ->nearby();
+		if ($result['num'])
+			$this ->responseNews($result);
+		else $this ->responseTextMsg('您附近今日无课程。');
 	}
 
 	//回复消息
@@ -248,7 +264,7 @@ class WeixinController {
 				$row = $contentStr[$i];
 				$str = $row[0]."\n".$row[1]."\n".$row[2]."\n".$row[3]."\n".$row[4]."\n".$row[5]."\n".$row[6];
 				$textTpl = $textTpl."<item>
-						<Title><![CDATA[$title]]></Title> 
+						<Title><![CDATA[$row[1],$row[4],$row[3]]]></Title> 
 						<Description><![CDATA[$str]]></Description>
 						<PicUrl><![CDATA[$purl]]></PicUrl>
 						<Url><![CDATA[$url]]></Url>

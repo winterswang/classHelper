@@ -11,22 +11,20 @@ class weixinEvent {
 protected $tableName; //数据库表名
 protected $createTime;//创建时间
 protected $fromUser;//来源openid
-protected $toUser;//目标openid
 protected $event;//事件类型
 
 
     //construct function
-    function __construct($ct, $fu, $tu, $e){
+    function __construct($ct, $fu, $e){
         $this ->createTime = $ct;
         $this ->fromUser = $fu;
-        $this ->toUser = $tu;
         $this ->event = $e;
     }
     //insert the event to db
     public function insertEvent(){
         //inset sql ;
         $type = strtolower($this ->event) == 'subscribe' ? 1 : 0;
-        $sql = 'insert into '.$this->tableName."(subscribe,openid,subscribe_time) values ('$type','$this->toUser','$this->createTime');" ;
+        $sql = 'insert into '.$this->tableName."(subscribe, subscribe_time) values ('$type', '$this->createTime');" ;
         error_log($sql);
         return $this->dbResult($sql);
     }

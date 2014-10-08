@@ -16,29 +16,35 @@ private $param;
 
         $sql;
         $param = $this ->param;
+        $event;
 
         switch ($this ->type) {
             case 'text':
                 $sql = 'insert into '.$this ->type."(FromUserName, CreateTime, Content, MsgId) values ('".$param['FromUserName']."', '".$param['CreateTime']."', '".$param['Content']."', '".$param['MsgId']."');" ;
                 break;
+
             case 'image':
                 $sql = 'insert into '.$this ->type."(FromUserName, CreateTime, PicUrl, MediaId, MsgId) values ('".$param['FromUserName']."', '".$param['CreateTime']."', '".$param['PicUrl']."', '".$param['MediaId']."', '".$param['MsgId']."');" ;
                 break;
+
             case 'voice':
                 $sql = 'insert into '.$this ->type."(FromUserName, CreateTime, MediaId, Format, MsgId) values ('".$param['FromUserName']."', '".$param['CreateTime']."', '".$param['MediaId']."', '".$param['Format']."', '".$param['MsgId']."');" ;
                 break;
+
             case 'video':
                 $sql = 'insert into '.$this ->type."(FromUserName, CreateTime, MediaId, ThumbMediaId, MsgId) values ('".$param['FromUserName']."', '".$param['CreateTime']."', '".$param['MediaId']."', '".$param['ThumbMediaId']."', '".$param['MsgId']."');" ;
                 break;
+
             case 'location':
                 $sql = 'insert into '.$this ->type."(FromUserName, CreateTime, Location_X, Location_Y, Scale, Label, MsgId) values ('".$param['FromUserName']."', '".$param['CreateTime']."', '".$param['Location_X']."', '".$param['Location_Y']."', '".$param['Scale']."', '".$param['Label']."', '".$param['MsgId']."');" ;
+                
                 break;
             case 'link':
                 $sql = 'insert into '.$this ->type."(FromUserName, CreateTime, Title, Description, Url, MsgId) values ('".$param['FromUserName']."', '".$param['CreateTime']."', '".$param['Title']."', '".$param['Description']."', '".$param['Url']."', '".$param['MsgId']."');" ;
                 break;
         }
         error_log($sql);
-        return $this->dbResult($sql);
+        return $this->dbResult_ins($sql);
     }
 
     //search
@@ -54,20 +60,30 @@ private $param;
       return $arr;
     }
 
-    
-    
+    private function dbResult_ins($sql){
+        $con = mysql_connect("localhost","root","wanglong319");
+        if(! $con){
+            error_log('mysql connect failed');
+            return false;
+        }
+        mysql_select_db("curriculum", $con);
+        mysql_query($sql);
+        mysql_close($con);
+        error_log('mysql insert successful');
+        return true;
+    }
     //执行db操作，返回结果
     private function dbResult($sql){
         $con = mysql_connect("localhost","root","wanglong319");
-        $num = 0;
+        $num ;
 
         if(! $con){
             error_log('mysql connect failed');
             return false;
         }
         mysql_select_db("curriculum", $con);
-
         $re = mysql_query($sql);
+        
         $num = mysql_num_rows($re);
         for ($i=0; $i < $num; $i++) { 
             # code...
@@ -77,7 +93,7 @@ private $param;
         
         $arr['num'] = $num;
         mysql_close($con);
-        error_log('mysql insert successful');
+        error_log('mysql select successful');
         return $arr;
     }
 }
