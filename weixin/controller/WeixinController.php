@@ -44,7 +44,7 @@ class WeixinController {
 			//获取微信事件类型
 			if ($msgType == 'event') {
 				$eventType = $this ->postObj ->Event;
-				$this ->eventRoute($eventType);
+				$this ->eventOp($eventType);
 				return $eventType;
 			}
 			else $this ->msgRoute($msgType);
@@ -55,9 +55,32 @@ class WeixinController {
 	}
 
 	//路由事件
-	public function eventRoute($eventType){
+	public function eventOp($eventType){
 
-		$api = new WxApiTools();
+		$event;
+		$msg;
+
+		if ($eventType == 'LOCATION') {
+
+			$event = new weixinLoc($this ->postObj ->FromUserName, $this ->postObj ->CreateTime, $this ->postObj ->Latitude, $this ->postObj ->Longitude);
+			$event ->insertLocation();
+			$result = $event ->nearby();
+			if ($result['num'])
+				$this ->responseNews($result);
+			else $this ->responseTextMsg('您附近今日无课程。');
+		}
+		else {
+			$event = new weixinEvent($this ->postObj);
+			$msg = $event ->eventRoute();
+
+			if ($msg['num']) {
+				if ($msg['num'] > 10) $msg['num'] = 10;
+				$this ->responseNews($msg);
+			}
+			else $this ->responseTextMsg('今日无课程。');
+
+		}
+		/*$api = new WxApiTools();
 		$access_token = $api ->getAccessToken('wxbc46f36b6bd23611','96bdbea6d82db5c3a2349dac7e46bc72');
 		
 		switch (strtoupper($eventType)) {
@@ -94,7 +117,7 @@ class WeixinController {
 			case 'UNSUBSCRIBE':
 
 				break;
-		}
+		}*/
 	}
 	//信息路由
 	public function msgRoute($msgType){
@@ -178,7 +201,7 @@ class WeixinController {
 
 		$event;
 		if ($this ->postObj ->Event == 'CLICK') {
-			$event = new weixinEvent($this ->postObj ->CreateTime, $this ->postObj ->FromUserName, $this ->postObj ->Event);
+			$event = new weixinEvent($this ->postObj ->CreateTime, $this ->postObj ->FromUserName, $this ->postObj ->Event, $this ->postObj ->EventKey);
 			$event ->insertEvent();
 		}
 		else {
