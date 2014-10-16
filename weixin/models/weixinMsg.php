@@ -47,6 +47,17 @@ private $param;
         return $this->dbResult_ins($sql);
     }
 
+    public function voice() {
+      $param = $this ->param;
+      
+      //description中包含了所有课程信息，包括模糊称呼
+      $sql="SELECT courseid, coursename, time, room, teacher, type, term, description FROM course WHERE description LIKE '%".$param['Recognition']."%';" ;
+
+      error_log($sql);
+      $arr = $this ->dbResult($sql);
+      return $arr;
+    }
+
     //search
     public function search() {
       $param = $this ->param;

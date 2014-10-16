@@ -60,15 +60,9 @@ class WeixinController {
 		$event;
 		$msg;
 
-		if ($eventType == 'LOCATION') {
+		if ($eventType == 'LOCATION') 
+			$this ->nearbyCourse();
 
-			$event = new weixinLoc($this ->postObj ->FromUserName, $this ->postObj ->CreateTime, $this ->postObj ->Latitude, $this ->postObj ->Longitude);
-			$event ->insertLocation();
-			$result = $event ->nearby();
-			if ($result['num'])
-				$this ->responseNews($result);
-			else $this ->responseTextMsg('您附近今日无课程。');
-		}
 		else {
 			$event = new weixinEvent($this ->postObj);
 			$msg = $event ->eventRoute();
@@ -80,44 +74,7 @@ class WeixinController {
 			else $this ->responseTextMsg('今日无课程。');
 
 		}
-		/*$api = new WxApiTools();
-		$access_token = $api ->getAccessToken('wxbc46f36b6bd23611','96bdbea6d82db5c3a2349dac7e46bc72');
 		
-		switch (strtoupper($eventType)) {
-			//关注
-			case 'SUBSCRIBE':
-				//存储用户信息
-				$result = $api ->getUserInfo($this ->postObj ->FromUserName, $access_token);
-				if (isset($result->errcode)) $this ->responseTextMsg($result ->errmsg);
-				else $this ->saveUsrInfo($result);	
-
-				$this ->responseTextMsg("Welcome to join us!您可\n1.通过搜索关键字（课程名称，教师姓名，教室号等）查找课程\n2.通过发送地理位置查找当日附近课程\n3.通过菜单操作查找课程");
-				break;
-			//扫描二维码
-			case 'SCAN':
-
-				break;
-			//地理位置
-			case 'LOCATION':
-				$this ->saveEvent();
-				$this ->responseTextMsg("We will access your location data.\n您可通过发送地理位置查找当日附近课程^^");
-				break;
-			//菜单点击
-			case 'CLICK':
-				error_log('ON CLICK',3,'/tmp/classHelper.log');
-				//存储事件
-				$this ->saveEvent();
-				$this ->responseTextMsg('on click');
-				break;
-			//菜单URL跳转
-			case 'VIEW':
-
-				break;
-			//取消关注
-			case 'UNSUBSCRIBE':
-
-				break;
-		}*/
 	}
 	//信息路由
 	public function msgRoute($msgType){
@@ -152,9 +109,10 @@ class WeixinController {
 								  	'CreateTime' => $this ->postObj ->CreateTime, 
 						  			'MediaId' => $this ->postObj ->MediaId, 
 						  			'Format' => $this ->postObj ->Format, 
-						  			'MsgId' => $this ->postObj ->MsgId
+						  			'MsgId' => $this ->postObj ->MsgId,
+						  			'Recognition' => $this ->postObj ->Recognition
 								);
-				$this ->responseTextMsg($msgType." have saved ^^");
+				$this ->voiceCourse($msgType, $msgParam);
 				break;
 			
 			case 'VIDEO':
@@ -224,6 +182,17 @@ class WeixinController {
 		$info ->insertInfo();
 	}
 
+	private function voiceCourse($msgType, $msgParam) {
+
+		$msgOp = new weixinMsg($msgType, $msgParam);
+		$result = $msgOp ->voice();
+		if ($result['num'] != 0 && $result['num'] != 36)
+			$this ->responseNews($result);
+		else $this ->responseTextMsg('语音识别暂时无法识别出您的搜索词。');
+		//$this ->responseTextMsg($result['num']);
+		
+	}
+
 	private function searchCourse($msgType, $msgParam) {
 
 		$msgOp = new weixinMsg($msgType, $msgParam);
@@ -235,10 +204,10 @@ class WeixinController {
 		
 	}
 
-	private function nearbyCourse($msgType, $msgParam) {
+	private function nearbyCourse() {
 
-		$locOp = new weixinLocEvent($msgParam['CreateTime'], $msgParam['FromUserName'], $msgType, $msgParam['Location_X'], $msgParam['Location_Y']);
-
+		$locOp = new weixinLoc($this ->postObj ->FromUserName, $this ->postObj ->CreateTime, $this ->postObj ->Latitude, $this ->postObj ->Longitude);
+		$locOp ->insertLocation();
 		$result = $locOp ->nearby();
 		if ($result['num'])
 			$this ->responseNews($result);
