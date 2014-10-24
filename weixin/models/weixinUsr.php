@@ -13,13 +13,22 @@ class weixinUsr {
         public function insertInfo(){
 
             $sql;
-            $info = $this ->usrInfo;
-	    $type = "userinfo";
+            $tableName = "userinfo";
 
-	    //$sql ='insert into '.$type. "(subscribe, openid, nickname, sex, language, city) values ('".$info['subscribe']."', '".$info['openid']."', '".$info['nickname']."', '".$info['sex']."', '".$info['language']."', '".$info['city']."');" ;
+            $subscribe = $this ->usrInfo ->subscribe;
+            $openid = $this ->usrInfo ->openid;
+            $nickname = $this ->usrInfo ->nickname;
+            $sex = $this ->usrInfo ->sex;
+            $language = $this ->usrInfo ->language;
+            $city = $this ->usrInfo ->city;
+            $province = $this ->usrInfo ->province;
+            $country = $this ->usrInfo ->country;
+            $headimgurl = $this ->usrInfo ->headimgurl;
+            $subscribe_time = $this ->usrInfo ->subscribe_time;
+            $unionid = $this ->usrInfo ->unionid;
 
-	    $sql ='insert into '.$type. "(subscribe, openid, nickname, sex, language, city) values ('$info ->subscribe', '$info ->openid', '$info ->nickname', '$info ->sex', '$info ->language', '$info ->city');" ;
-
+    	    $sql ='insert into '.$tableName. "(subscribe, openid, nickname, sex, language, city, province, country, headimgurl, subscribe_time, unionid) values ('$subscribe', '$openid', '$nickname', '$sex', '$language', '$city', '$province', '$country', '$headimgurl', '$subscribe_time', '$unionid');" ;
+            
             error_log($sql);
             return $this->dbResult($sql);
         }

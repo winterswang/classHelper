@@ -1,3 +1,36 @@
+2014/10/17 12:25 AM
+成功修复了地理位置搜索功能。
+实现语音识别搜索功能。
+修改文件为WeixinController.php, weixinMsg.php.
+
+2014/10/16
+之前建立了菜单（在微信文档里操作）。
+菜单前两个已实现其功能。但发现第二个菜单的功能无必要性。
+地理位置搜索功能失效。
+另注：图文消息个数，限制为10条以内。
+
+2014/10/10
+修改了代码结构。其中包括WeixinController.php, weixinEvent.php, weixinLoc.php（原weixinLocEvent.php）。
+
+2014/10/08
+修改菜单。
+
+2014/09/25
+于weixinLocEvent.php中增加了关于查找附近课程的部分代码（为实现整体功能）。
+
+2014/09/23
+于WeixinController.php中增加了关于查询若不合法，返回提示语句的部分。
+各个接口目前都可稳定存储内容或输出信息。
+
+2014/09/21
+成功验证了用于插入定位事件的子类weixinLocEvent。
+于表course中插入字段description，并插入相关信息，此字段内容包含课程的具体信息和用户可能输入的模糊查询。
+于发送图文消息的方法responseNews()中加入循环，使得该方法可输出多图文消息。
+
+2014/09/20
+通过模糊查询利用图文消息发送课程信息。
+于weixinMsg.php中添加了方法search()用于模糊查询。于WeixinController.php中添加了方法responseNews()用于发送图文消息。
+
 2014/09/16
 获取用户信息部分已成功。
 另外将LOCATION事件存储，于weixinEvent.php中添加了方法insertLocation用于存储LOCATION。
