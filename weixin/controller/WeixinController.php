@@ -241,7 +241,7 @@ class WeixinController {
 
         	$title = 'course';
 			$purl = 'http://mmbiz.qpic.cn/mmbiz/Z9rgwVAyPI3DPUTgvJJOoYJsw519KIc05lYamyNpaxXDDuBcVPs9EA0MZqIbKJbFLrUlUNiaicjvjDZm0n6HpWXw/0';
-			$url = 'www.baidu.com';
+			$url = 'http://zy.heay.cn/';
 
         	$textTpl = "<xml>
 						<ToUserName><![CDATA[%s]]></ToUserName>
