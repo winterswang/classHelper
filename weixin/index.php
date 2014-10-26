@@ -14,14 +14,6 @@ require_once(__ROOT__.'/weixin/util/WxApiTools.php');
 
 //最新方法操作
 $wc  = new WeixinController();
-$msgType = $wc ->getMsgType();
-
-//error_log(' msgType: '.$msgType .'eventType : '.$eventType,3,'/tmp/classHelper.log');
-
-if(!$msgType){
-    error_log('get type failed',3,'/tmp/classHelper.log');
-    return false;
-}
-//$wc ->eventRoute($eventType);
+$wc -> run();
 
 ?>

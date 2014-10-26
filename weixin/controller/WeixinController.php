@@ -8,50 +8,58 @@
 
 class WeixinController {
 
-	private $TOKEN = 'weixin';
-	private $postObj ;
-	
+	protected $TOKEN = 'weixin';
+	protected $postObj ;
+	protected $statusCode = 1; //系统状态码
+
 	//构造方法
 	public function __construct(){
-		$this ->init();
-	}
-
-	//初始化方法
-	private function init(){
 		//验证通过再接入XML存储
 		//$this ->valid();
 		$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
 		//$postStr = '<xml><ToUserName><![CDATA[gh_6e55df1a2209]]></ToUserName><FromUserName><![CDATA[oNsk5uLjoXbpUf1Tqr8xs_trQ_9A]]></FromUserName><CreateTime>1409667870</CreateTime><MsgType><![CDATA[event]]></MsgType><Event><![CDATA[CLICK]]></Event><EventKey><![CDATA[5672]]></EventKey></xml>';
-		if (!empty($postStr)){
+		if (isset($postStr))
+		{
 		    file_put_contents("/tmp/weixin_yingz.log", $postStr,FILE_APPEND);
 		    $this ->postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
-		}else{
-		    error_log('postStr is empty',3,'/tmp/classHelper.log');
-		    return false;
 		}
 	}
 
+	/**
+	* run函数是入口函数，完成状态码的验证，分发消息到具体业务的controller中
+	*/
+	public function run(){
 
-	//获取微信消息类型
-	public function getMsgType(){
-
-		$msgType = $this ->postObj ->MsgType;
-		$eventType;
-		
-		
-		if (isset($msgType)) {
-
-			//获取微信事件类型
-			if ($msgType == 'event') {
-				$eventType = $this ->postObj ->Event;
-				$this ->eventOp($eventType);
-				return $eventType;
+		$wxType = $this ->postObj ->msgType;
+		if(isset($wxType)){
+			$msgArr = array('text','voice','location');//消息类的具体类型
+			if(in_array($msgArr, $wxType)){
+				//说明类型是消息类型
+				$msgController = new WxMsgController();
+				$msgController ->run();
 			}
-			else $this ->msgRoute($msgType);
-
-			return $msgType;
+			else if($wxType == 'event'){
+				//说明类型是事件类型
+				$eventController = new WxEventController();
+				$eventController ->run();
+			}
 		}
-		return false;
+
+		$this ->checkStatusCode();
+	}
+
+	/**
+	* 对每一个数据流的结果，都标定一个状态码，最后打印出状态码对应的提示语
+	*
+	*
+	*/
+	protected function checkStatusCode(){
+		if($this ->statusCode == 1){
+			return ;
+		}
+		//TODO 待设计
+		//$this ->responseTextMsg('errorMsg');
+		exit();
 	}
 
 	//路由事件
@@ -60,7 +68,7 @@ class WeixinController {
 		$event;
 		$msg;
 
-		if ($eventType == 'LOCATION') 
+		if ($eventType == 'LOCATION')
 			$this ->nearbyCourse();
 
 		else {
@@ -74,86 +82,8 @@ class WeixinController {
 			else $this ->responseTextMsg('今日无课程。');
 
 		}
-		
 	}
-	//信息路由
-	public function msgRoute($msgType){
-		$result;
-		$msgParam;
-		$api = new WxApiTools();
-		$access_token = $api ->getAccessToken('wxbc46f36b6bd23611','96bdbea6d82db5c3a2349dac7e46bc72');
 
-		switch (strtoupper($msgType)) {
-
-			case 'TEXT':
-				$msgParam = array(	'FromUserName' => $this ->postObj ->FromUserName, 
-								  	'CreateTime' => $this ->postObj ->CreateTime, 
-						  			'Content' => $this ->postObj ->Content, 
-						  			'MsgId' => $this ->postObj ->MsgId
-								);
-				$this ->searchCourse($msgType, $msgParam);
-				break;
-			
-			case 'IMAGE':
-				$msgParam = array(	'FromUserName' => $this ->postObj ->FromUserName, 
-								  	'CreateTime' => $this ->postObj ->CreateTime, 
-						  			'PicUrl' => $this ->postObj ->PicUrl, 
-						  			'MediaId' => $this ->postObj ->MediaId, 
-						  			'MsgId' => $this ->postObj ->MsgId
-								);
-				$this ->responseTextMsg($msgType." have saved ^^");
-				break;
-			
-			case 'VOICE':
-				$msgParam = array(	'FromUserName' => $this ->postObj ->FromUserName, 
-								  	'CreateTime' => $this ->postObj ->CreateTime, 
-						  			'MediaId' => $this ->postObj ->MediaId, 
-						  			'Format' => $this ->postObj ->Format, 
-						  			'MsgId' => $this ->postObj ->MsgId,
-						  			'Recognition' => $this ->postObj ->Recognition
-								);
-				$this ->voiceCourse($msgType, $msgParam);
-				break;
-			
-			case 'VIDEO':
-				$msgParam = array(	'FromUserName' => $this ->postObj ->FromUserName, 
-								  	'CreateTime' => $this ->postObj ->CreateTime, 
-						  			'MediaId' => $this ->postObj ->MediaId, 
-						  			'ThumbMediaId' => $this ->postObj ->ThumbMediaId, 
-						  			'MsgId' => $this ->postObj ->MsgId
-								);
-				$this ->responseTextMsg($msgType." have saved ^^");
-				break;
-			
-			case 'LOCATION':
-				$msgParam = array(	'FromUserName' => $this ->postObj ->FromUserName, 
-								  	'CreateTime' => $this ->postObj ->CreateTime, 
-						  			'Location_X' => $this ->postObj ->Location_X, 
-						  			'Location_Y' => $this ->postObj ->Location_Y, 
-						  			'Scale' => $this ->postObj ->Scale, 
-						  			'Label' => $this ->postObj ->Label, 
-						  			'MsgId' => $this ->postObj ->MsgId
-								);
-				$this ->nearbyCourse($msgType, $msgParam);
-				break;
-			
-			case 'LINK':
-				$msgParam = array(	'FromUserName' => $this ->postObj ->FromUserName, 
-								  	'CreateTime' => $this ->postObj ->CreateTime, 
-						  			'Title' => $this ->postObj ->Title, 
-						  			'Description' => $this ->postObj ->Description, 
-						  			'Url' => $this ->postObj ->Url, 
-						 			'MsgId' => $this ->postObj ->MsgId
-								);
-				$this ->responseTextMsg($msgType." have saved ^^");
-				break;
-		}
-		
-		
-		$this ->saveMsg($msgType, $msgParam);
-		//$this ->responseTextMsg($result);
-		
-	}
 	//存储事件
 	private function saveEvent(){
 
@@ -190,18 +120,6 @@ class WeixinController {
 			$this ->responseNews($result);
 		else $this ->responseTextMsg('语音识别暂时无法识别出您的搜索词。');
 		//$this ->responseTextMsg($result['num']);
-		
-	}
-
-	private function searchCourse($msgType, $msgParam) {
-
-		$msgOp = new weixinMsg($msgType, $msgParam);
-		$result = $msgOp ->search();
-		if ($result['num'] != 0 && $result['num'] != 36)
-			$this ->responseNews($result);
-		else $this ->responseTextMsg('查询无结果，请您确认是否输入正确。如果需要查询课程的话您最好输入与课程相关的信息，如课程名，课程序号，教师姓名，教室等等。');
-		//$this ->responseTextMsg($result['num']);
-		
 	}
 
 	private function nearbyCourse() {
@@ -286,9 +204,9 @@ class WeixinController {
     }
     //签名验证
 	private function checkSignature(){
-        	$signature = $_GET["signature"];
-        	$timestamp = $_GET["timestamp"];
-        	$nonce = $_GET["nonce"];
+        $signature = $_GET["signature"];
+        $timestamp = $_GET["timestamp"];
+        $nonce = $_GET["nonce"];
 		$token = $this ->TOKEN;
 		$tmpArr = array($token, $timestamp, $nonce);
 		sort($tmpArr, SORT_STRING);
