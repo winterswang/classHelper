@@ -17,10 +17,11 @@ class WeixinController {
 		//验证通过再接入XML存储
 		//$this ->valid();
 		$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
+		$postStr = '<xml><ToUserName><![CDATA[toUser]]></ToUserName><FromUserName><![CDATA[fromUser]]></FromUserName><CreateTime>1348831860</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[this is a test]]></Content><MsgId>1234567890123456</MsgId></xml>';
 		//$postStr = '<xml><ToUserName><![CDATA[gh_6e55df1a2209]]></ToUserName><FromUserName><![CDATA[oNsk5uLjoXbpUf1Tqr8xs_trQ_9A]]></FromUserName><CreateTime>1409667870</CreateTime><MsgType><![CDATA[event]]></MsgType><Event><![CDATA[CLICK]]></Event><EventKey><![CDATA[5672]]></EventKey></xml>';
 		if (isset($postStr))
 		{
-		    file_put_contents("/tmp/weixin_yingz.log", $postStr,FILE_APPEND);
+		    //file_put_contents("/tmp/weixin_yingz.log", $postStr,FILE_APPEND);
 		    $this ->postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
 		}
 	}
@@ -29,37 +30,24 @@ class WeixinController {
 	* run函数是入口函数，完成状态码的验证，分发消息到具体业务的controller中
 	*/
 	public function run(){
+		echo __METHOD__."\r\n";
+		$wxType = $this ->postObj ->MsgType;
 
-		$wxType = $this ->postObj ->msgType;
 		if(isset($wxType)){
 			$msgArr = array('text','voice','location');//消息类的具体类型
-			if(in_array($msgArr, $wxType)){
+			if(in_array($wxType, $msgArr)){
+				echo "is line 39 in WeixinController \r\n";
 				//说明类型是消息类型
-				$msgController = new WxMsgController();
+				$msgController = new WxMsgController($this ->postObj);
 				$msgController ->run();
 			}
 			else if($wxType == 'event'){
 				//说明类型是事件类型
-				$eventController = new WxEventController();
+				$eventController = new WxEventController($this ->postObj);
 				$eventController ->run();
 			}
 		}
-
-		$this ->checkStatusCode();
-	}
-
-	/**
-	* 对每一个数据流的结果，都标定一个状态码，最后打印出状态码对应的提示语
-	*
-	*
-	*/
-	protected function checkStatusCode(){
-		if($this ->statusCode == 1){
-			return ;
-		}
-		//TODO 待设计
-		//$this ->responseTextMsg('errorMsg');
-		exit();
+		echo "is line 49 in WeixinController \r\n";
 	}
 
 	//路由事件
@@ -100,11 +88,6 @@ class WeixinController {
 				$this ->responseNews($result);
 			else $this ->responseTextMsg('您附近今日无课程。');
 		}
-	}
-
-	private function saveMsg($t, $p){
-		$msg = new weixinMsg($t, $p);
-		$msg ->insertMsg();
 	}
 
 	private function saveUsrInfo($re){
@@ -180,12 +163,10 @@ class WeixinController {
 						<Url><![CDATA[$url]]></Url>
 						</item>
 						";
-						
 			}
 			$textTpl = $textTpl."</Articles>
 						</xml> ";
-			
-			
+
         	$resultStr = sprintf($textTpl, $fromUsername, $toUsername, time(), 'news');
         	echo $resultStr;
 

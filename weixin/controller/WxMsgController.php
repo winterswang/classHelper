@@ -7,12 +7,13 @@
 */
 
 class WxMsgController extends WeixinController {
-	
+
 	private $wxMsgModel;
 	private $courseModel;
 	//构造方法
-	public function __construct(){
+	public function __construct($postObj){
 		//model层的对象，是负责数据库交互的
+		$this ->postObj = $postObj;
 		$this ->wxMsgModel = new WeixinMsg($this ->postObj);
 		$this ->courseModel = new Course();
 	}
@@ -25,7 +26,7 @@ class WxMsgController extends WeixinController {
 	public function run(){
 		//统一完成推送消息的存储
 		$this ->wxMsgModel ->saveMsg();
-		$fun = $this ->postObj ->msgType.'Fun';
+		$fun = $this ->postObj ->MsgType.'Fun';
 		$this ->$fun();
 	}
 
@@ -53,7 +54,7 @@ class WxMsgController extends WeixinController {
 	*/
 	private function voiceFun(){
 
-		$result = $this ->wxMsgModel ->search($this ->postObj ->Recognition);
+		$result = $this ->courseModel ->search($this ->postObj ->Recognition);
 		//TODO 这里的36 是什么含义？？
 		if ($result['num'] != 0 && $result['num'] != 36)
 			$this ->responseNews($result);
