@@ -11,7 +11,7 @@ require_once(__ROOT__.'/weixin/models/weixinMsg.php');
 require_once(__ROOT__.'/weixin/models/weixinUsr.php');
 require_once(__ROOT__.'/weixin/controller/WeixinController.php');
 require_once(__ROOT__.'/weixin/util/WxApiTools.php');
-require_once(__ROOT__.'/weixin/views/mobile.html');
+require_once(__ROOT__.'/weixin/views/Singlepage.html');
 
 //最新方法操作
 $wc  = new WeixinController();
