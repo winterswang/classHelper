@@ -16,5 +16,31 @@ class WxEventController extends WeixinController{
 		$this ->wxEventModel = new weixinEvent($this ->postObj);
 		$this ->courseModel = new Course();
 	}
+
+	/**
+	* run 是来具体实现wxEventController的业务的
+	* 通过run函数，来完成业务的验证，分发
+	*/
+	public function run(){
+		$wxEvent = $this ->postObj ->Event;
+		if(isset($wxEvent)){
+			$fun = $wxEvent.'Fun';
+			$res = $this ->$fun();
+		}
+	}
+
+	//关注
+	public function subscribeFun(){
+
+	}
+	//取消关注
+	public function unSubscribeFun(){
+
+	}
+
+	//扫描
+	public function scanFun(){
+		
+	}
 }
 ?>
