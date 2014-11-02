@@ -34,6 +34,7 @@ class WeixinController {
 		$wxType = $this ->postObj ->MsgType;
 
 		if(isset($wxType)){
+			$wxType = strtolower($wxType);
 			$msgArr = array('text','voice','location');//消息类的具体类型
 			if(in_array($wxType, $msgArr)){
 				echo "is line 39 in WeixinController \r\n";
