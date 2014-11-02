@@ -30,17 +30,54 @@ class WxEventController extends WeixinController{
 	}
 
 	//关注
-	public function subscribeFun(){
+	private function subscribeFun(){
 
 	}
 	//取消关注
-	public function unSubscribeFun(){
+	private function unSubscribeFun(){
 
 	}
 
 	//扫描
-	public function scanFun(){
-		
+	private function scanFun(){
+
+	}
+
+	//地理位置
+	private function locationFun(){
+
+	}
+
+	//点击菜单 按照条件查询课程
+	private function clickFun(){
+
+        $eventKey = $this ->postObj ->EventKey;
+        if (!isset($eventKey)) {
+        	error_log('miss eventKey in '.__METHOD__);
+        	return ;
+        }
+
+        //这里回来要好好设计，首先是一个key和value的对应菜单数组，最好是在配置文件中配置
+        //1.方便更新菜单，2.方便在代码实现过程中可以自动更新菜单项
+
+        $menuArr = array(
+        	'V1001_MON' => '周一',
+        	'V1001_TUE' => '周二',
+        	'V1001_WED' => '周三',
+        	'V1001_THU' => '周四',
+        	'V1001_FRI' => '周五',
+        	'V1002_201' => '专业必修',
+        	'V1002_202' => '专业任意选修',
+        	'V1002_203' => '公共选修',
+        	);
+        $content = $menuArr[$eventKey];
+        $res = $this ->courseModel ->search($content);
+        return $res;
+	}
+
+	//跳转网页
+	private function viewFun(){
+
 	}
 }
 ?>
