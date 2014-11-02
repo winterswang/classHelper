@@ -13,7 +13,7 @@ protected $postObj;
 
     //construct function
     function __construct($po){
-    
+
        $this ->postObj = $po;
     }
 
